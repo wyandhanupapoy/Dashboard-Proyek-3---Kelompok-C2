@@ -11,626 +11,619 @@
     <!-- Memuat Chart.js (Hanya untuk Dashboard) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <!-- [DIHAPUS] Adapter tanggal Chart.js tidak lagi diperlukan untuk timeline -->
-    <!-- <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script> -->
-    
     <!-- [BARU] Memuat FullCalendar.js -->
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.14/index.global.min.js'></script>
 
     <style>
-        /* ===== ROOT VARIABLES ===== */
         /* ===== IMPORT FONT ===== */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-:root {
-    /* Colors */
-    --primary-600: #4f46e5;
-    --primary-700: #4338ca;
-    --primary-800: #3730a3;
-    --slate-50: #f8fafc;
-    --slate-100: #f1f5f9;
-    --slate-200: #e2e8f0;
-    --slate-300: #cbd5e1;
-    --slate-400: #94a3b8;
-    --slate-500: #64748b;
-    --slate-600: #475569;
-    --slate-700: #334155;
-    --slate-800: #1e293b;
-    --slate-900: #0f172a;
-    
-    /* Spacing */
-    --spacing-xs: 0.25rem;
-    --spacing-sm: 0.5rem;
-    --spacing-md: 1rem;
-    --spacing-lg: 1.5rem;
-    --spacing-xl: 2rem;
-    
-    /* Border Radius */
-    --radius-sm: 0.375rem;
-    --radius-md: 0.5rem;
-    --radius-lg: 0.75rem;
-    --radius-xl: 1rem;
-    --radius-2xl: 1.5rem;
-    
-    /* Shadows */
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    
-    /* FullCalendar */
-    --fc-border-color: var(--slate-200);
-    --fc-today-bg-color: var(--slate-50);
-    --fc-button-bg-color: var(--primary-600);
-    --fc-button-border-color: var(--primary-600);
-    --fc-button-hover-bg-color: var(--primary-700);
-    --fc-button-hover-border-color: var(--primary-700);
-    --fc-button-active-bg-color: var(--primary-800);
-    --fc-button-active-border-color: var(--primary-800);
-    --fc-event-border-color: var(--primary-700);
-    
-    /* Transitions */
-    --transition-fast: 150ms ease-in-out;
-    --transition-base: 200ms ease-in-out;
-    --transition-slow: 300ms ease-in-out;
-}
-
-/* ===== GLOBAL RESET & BASE STYLES ===== */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    background-color: var(--slate-100);
-    color: var(--slate-800);
-    line-height: 1.5;
-    overflow-x: hidden;
-}
-
-/* ===== SCROLLBAR STYLING ===== */
-.no-scrollbar {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
-
-.no-scrollbar::-webkit-scrollbar {
-    display: none;
-}
-
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--slate-100);
-    border-radius: var(--radius-md);
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--slate-300);
-    border-radius: var(--radius-md);
-    transition: background var(--transition-fast);
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--slate-400);
-}
-
-/* ===== NAVIGATION ===== */
-.nav-link {
-    position: relative;
-    transition: all var(--transition-base);
-    overflow: hidden;
-}
-
-.nav-link::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 100%;
-    width: 3px;
-    background: var(--primary-600);
-    transform: scaleY(0);
-    transition: transform var(--transition-base);
-}
-
-.nav-link.active {
-    background-color: var(--primary-600);
-    color: white;
-    box-shadow: var(--shadow-md);
-}
-
-.nav-link.active::before {
-    transform: scaleY(1);
-}
-
-.nav-link:hover:not(.active) {
-    background-color: var(--slate-50);
-    transform: translateX(4px);
-}
-
-.nav-link svg {
-    transition: transform var(--transition-base);
-}
-
-.nav-link:hover svg {
-    transform: scale(1.1);
-}
-
-/* ===== MODALS ===== */
-.modal {
-    transition: opacity var(--transition-slow), transform var(--transition-slow);
-    backdrop-filter: blur(4px);
-}
-
-.modal-content {
-    transition: transform var(--transition-slow);
-    animation: modalSlideUp 0.3s ease-out;
-}
-
-@keyframes modalSlideUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px) scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-/* ===== BUTTONS ===== */
-button, .btn {
-    position: relative;
-    overflow: hidden;
-    transition: all var(--transition-base);
-}
-
-button:hover, .btn:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-lg);
-}
-
-button:active, .btn:active {
-    transform: translateY(0);
-    box-shadow: var(--shadow-md);
-}
-
-button::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.5);
-    transform: translate(-50%, -50%);
-    transition: width 0.6s, height 0.6s;
-}
-
-button:active::after {
-    width: 300px;
-    height: 300px;
-}
-
-/* ===== CARDS ===== */
-.bg-white {
-    transition: all var(--transition-base);
-}
-
-.bg-white:hover {
-    box-shadow: var(--shadow-xl);
-    transform: translateY(-2px);
-}
-
-/* ===== FORMS ===== */
-input, select, textarea {
-    transition: all var(--transition-base);
-}
-
-input:focus, select:focus, textarea:focus {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
-}
-
-input[type="date"]::-webkit-calendar-picker-indicator {
-    cursor: pointer;
-    filter: invert(0.5);
-    transition: filter var(--transition-fast);
-}
-
-input[type="date"]:hover::-webkit-calendar-picker-indicator {
-    filter: invert(0.3);
-}
-
-/* ===== TABLE ===== */
-table {
-    border-collapse: separate;
-    border-spacing: 0;
-}
-
-tbody tr {
-    transition: all var(--transition-fast);
-}
-
-tbody tr:hover {
-    background-color: var(--slate-50);
-    box-shadow: 0 0 0 1px var(--slate-200);
-}
-
-thead th {
-    position: sticky;
-    top: 0;
-    background-color: var(--slate-50);
-    z-index: 10;
-}
-
-/* ===== FULLCALENDAR CUSTOM STYLES ===== */
-.fc {
-    font-family: 'Inter', sans-serif;
-}
-
-.fc .fc-toolbar-title {
-    font-size: clamp(1.25rem, 3vw, 1.5rem);
-    font-weight: 600;
-    color: var(--slate-800);
-    text-transform: capitalize;
-}
-
-.fc .fc-button {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    text-transform: capitalize;
-    border-radius: var(--radius-lg);
-    border: none;
-    box-shadow: var(--shadow-sm);
-    transition: all var(--transition-base);
-}
-
-.fc .fc-button:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-}
-
-.fc .fc-button-primary {
-    background-color: var(--fc-button-bg-color);
-    border-color: var(--fc-button-border-color);
-}
-
-.fc .fc-button-primary:hover {
-    background-color: var(--fc-button-hover-bg-color);
-}
-
-.fc .fc-button-primary:active,
-.fc .fc-button-primary.fc-button-active {
-    background-color: var(--fc-button-active-bg-color);
-}
-
-.fc .fc-daygrid-day {
-    transition: background-color var(--transition-fast);
-}
-
-.fc .fc-daygrid-day:hover {
-    background-color: var(--slate-50);
-}
-
-.fc .fc-daygrid-day-number {
-    font-size: 0.875rem;
-    color: var(--slate-700);
-    padding: 0.5rem;
-    font-weight: 500;
-}
-
-.fc .fc-event {
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    border-width: 2px;
-    margin-bottom: 2px;
-}
-
-.fc .fc-event:hover {
-    transform: scale(1.02);
-    box-shadow: var(--shadow-md);
-    z-index: 1;
-}
-
-.fc .fc-event-title {
-    font-weight: 500;
-}
-
-.fc .fc-col-header-cell {
-    background-color: var(--slate-50);
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 0.05em;
-}
-
-/* ===== LOADER ===== */
-#loader {
-    background: linear-gradient(135deg, var(--slate-50) 0%, var(--slate-100) 100%);
-}
-
-#loader svg {
-    animation: spin 1s linear infinite;
-    filter: drop-shadow(0 4px 8px rgba(79, 70, 229, 0.3));
-}
-
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-/* ===== SIDEBAR ===== */
-#sidebar {
-    transition: transform var(--transition-slow);
-    backdrop-filter: blur(10px);
-}
-
-#sidebar-overlay {
-    transition: opacity var(--transition-slow);
-}
-
-/* ===== RESPONSIVE UTILITIES ===== */
-@media (max-width: 768px) {
-    :root {
-        --spacing-md: 0.75rem;
-        --spacing-lg: 1rem;
-        --spacing-xl: 1.25rem;
-    }
-    
-    .fc .fc-toolbar {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-    
-    .fc .fc-toolbar-chunk {
-        display: flex;
-        justify-content: center;
-    }
-    
-    table {
-        font-size: 0.875rem;
-    }
-    
-    .modal-content {
-        max-height: 90vh;
-        overflow-y: auto;
-    }
-}
-
-@media (max-width: 640px) {
-    .fc .fc-toolbar-title {
-        font-size: 1.125rem;
-    }
-    
-    .fc .fc-button {
-        padding: 0.375rem 0.75rem;
-        font-size: 0.8125rem;
-    }
-    
-    table td, table th {
-        padding: 0.75rem 0.5rem;
-    }
-}
-
-/* ===== ANIMATIONS ===== */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.app-page {
-    animation: fadeIn 0.3s ease-out;
-}
-
-/* ===== BADGE & STATUS ===== */
-.badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    transition: all var(--transition-base);
-}
-
-.badge:hover {
-    transform: scale(1.05);
-}
-
-/* ===== TOOLTIPS (optional enhancement) ===== */
-[data-tooltip] {
-    position: relative;
-}
-
-[data-tooltip]::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%) translateY(-8px);
-    padding: 0.5rem 0.75rem;
-    background: var(--slate-900);
-    color: white;
-    font-size: 0.75rem;
-    border-radius: var(--radius-md);
-    white-space: nowrap;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity var(--transition-base);
-    z-index: 1000;
-}
-
-[data-tooltip]:hover::after {
-    opacity: 1;
-}
-
-/* ===== FOCUS VISIBLE ===== */
-*:focus-visible {
-    outline: 2px solid var(--primary-600);
-    outline-offset: 2px;
-}
-
-button:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible {
-    outline: 2px solid var(--primary-600);
-    outline-offset: 2px;
-}
-
-/* ===== ACCESSIBILITY ===== */
-.sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border-width: 0;
-}
-
-/* ===== PRINT STYLES ===== */
-@media print {
-    #sidebar,
-    #menu-btn,
-    #add-task-btn,
-    .delete-task-btn,
-    .edit-task-btn,
-    .delete-link-btn {
-        display: none !important;
-    }
-    
-    body {
-        background: white;
-    }
-    
-    .bg-white {
-        box-shadow: none;
-    }
-}
-
-/* ===== DARK MODE PREPARATION (optional) ===== */
-@media (prefers-color-scheme: dark) {
-    /* Uncomment untuk enable dark mode
-    :root {
-        --slate-50: #0f172a;
-        --slate-100: #1e293b;
-        --slate-800: #f1f5f9;
-        --slate-900: #f8fafc;
-    }
-    
-    body {
-        background-color: var(--slate-900);
-        color: var(--slate-100);
-    }
-    */
-}
-
-/* ===== PERFORMANCE OPTIMIZATIONS ===== */
-@media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-    }
-}
-
-/* ===== CUSTOM UTILITY CLASSES ===== */
-.hover-lift {
-    transition: transform var(--transition-base), box-shadow var(--transition-base);
-}
-
-.hover-lift:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-xl);
-}
-
-.pulse-slow {
-    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-}
-
-.gradient-border {
-    position: relative;
-    background: white;
-}
-
-.gradient-border::before {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    background: linear-gradient(45deg, var(--primary-600), var(--primary-800));
-    border-radius: inherit;
-    z-index: -1;
-    opacity: 0;
-    transition: opacity var(--transition-base);
-}
-
-.gradient-border:hover::before {
-    opacity: 1;
-}
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        /* ===== ROOT VARIABLES ===== */
+        :root {
+            /* Colors */
+            --primary-600: #4f46e5;
+            --primary-700: #4338ca;
+            --primary-800: #3730a3;
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-300: #cbd5e1;
+            --slate-400: #94a3b8;
+            --slate-500: #64748b;
+            --slate-600: #475569;
+            --slate-700: #334155;
+            --slate-800: #1e293b;
+            --slate-900: #0f172a;
+            
+            /* Spacing */
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            
+            /* Border Radius */
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --radius-2xl: 1.5rem;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            
+            /* FullCalendar */
+            --fc-border-color: var(--slate-200);
+            --fc-today-bg-color: var(--slate-50);
+            --fc-button-bg-color: var(--primary-600);
+            --fc-button-border-color: var(--primary-600);
+            --fc-button-hover-bg-color: var(--primary-700);
+            --fc-button-hover-border-color: var(--primary-700);
+            --fc-button-active-bg-color: var(--primary-800);
+            --fc-button-active-border-color: var(--primary-800);
+            --fc-event-border-color: var(--primary-700);
+            
+            /* Transitions */
+            --transition-fast: 150ms ease-in-out;
+            --transition-base: 200ms ease-in-out;
+            --transition-slow: 300ms ease-in-out;
+        }
+
+        /* ===== GLOBAL RESET & BASE STYLES ===== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: var(--slate-100);
+            color: var(--slate-800);
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        /* ===== SCROLLBAR STYLING ===== */
+        .no-scrollbar {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--slate-100);
+            border-radius: var(--radius-md);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--slate-300);
+            border-radius: var(--radius-md);
+            transition: background var(--transition-fast);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--slate-400);
+        }
+
+        /* ===== NAVIGATION ===== */
+        .nav-link {
+            position: relative;
+            transition: all var(--transition-base);
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: var(--primary-600);
+            transform: scaleY(0);
+            transition: transform var(--transition-base);
+        }
+
+        .nav-link.active {
+            background-color: var(--primary-600);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .nav-link.active::before {
+            transform: scaleY(1);
+        }
+
+        .nav-link:hover:not(.active) {
+            background-color: var(--slate-50);
+            transform: translateX(4px);
+        }
+
+        .nav-link svg {
+            transition: transform var(--transition-base);
+        }
+
+        .nav-link:hover svg {
+            transform: scale(1.1);
+        }
+
+        /* ===== MODALS ===== */
+        .modal {
+            transition: opacity var(--transition-slow), transform var(--transition-slow);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            transition: transform var(--transition-slow);
+            animation: modalSlideUp 0.3s ease-out;
+        }
+
+        @keyframes modalSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* ===== BUTTONS ===== */
+        button, .btn {
+            position: relative;
+            overflow: hidden;
+            transition: all var(--transition-base);
+        }
+
+        button:hover, .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        button:active, .btn:active {
+            transform: translateY(0);
+            box-shadow: var(--shadow-md);
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button:active::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        /* ===== CARDS ===== */
+        .bg-white {
+            transition: all var(--transition-base);
+        }
+
+        .bg-white:hover {
+            box-shadow: var(--shadow-xl);
+            transform: translateY(-2px);
+        }
+
+        /* ===== FORMS ===== */
+        input, select, textarea {
+            transition: all var(--transition-base);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            filter: invert(0.5);
+            transition: filter var(--transition-fast);
+        }
+
+        input[type="date"]:hover::-webkit-calendar-picker-indicator {
+            filter: invert(0.3);
+        }
+
+        /* ===== TABLE ===== */
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        tbody tr {
+            transition: all var(--transition-fast);
+        }
+
+        tbody tr:hover {
+            background-color: var(--slate-50);
+            box-shadow: 0 0 0 1px var(--slate-200);
+        }
+
+        thead th {
+            position: sticky;
+            top: 0;
+            background-color: var(--slate-50);
+            z-index: 10;
+        }
+
+        /* ===== FULLCALENDAR CUSTOM STYLES ===== */
+        .fc {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .fc .fc-toolbar-title {
+            font-size: clamp(1.25rem, 3vw, 1.5rem);
+            font-weight: 600;
+            color: var(--slate-800);
+            text-transform: capitalize;
+        }
+
+        .fc .fc-button {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: capitalize;
+            border-radius: var(--radius-lg);
+            border: none;
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-base);
+        }
+
+        .fc .fc-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .fc .fc-button-primary {
+            background-color: var(--fc-button-bg-color);
+            border-color: var(--fc-button-border-color);
+        }
+
+        .fc .fc-button-primary:hover {
+            background-color: var(--fc-button-hover-bg-color);
+        }
+
+        .fc .fc-button-primary:active,
+        .fc .fc-button-primary.fc-button-active {
+            background-color: var(--fc-button-active-bg-color);
+        }
+
+        .fc .fc-daygrid-day {
+            transition: background-color var(--transition-fast);
+        }
+
+        .fc .fc-daygrid-day:hover {
+            background-color: var(--slate-50);
+        }
+
+        .fc .fc-daygrid-day-number {
+            font-size: 0.875rem;
+            color: var(--slate-700);
+            padding: 0.5rem;
+            font-weight: 500;
+        }
+
+        .fc .fc-event {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border-width: 2px;
+            margin-bottom: 2px;
+        }
+
+        .fc .fc-event:hover {
+            transform: scale(1.02);
+            box-shadow: var(--shadow-md);
+            z-index: 1;
+        }
+
+        .fc .fc-event-title {
+            font-weight: 500;
+        }
+
+        .fc .fc-col-header-cell {
+            background-color: var(--slate-50);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        /* ===== LOADER ===== */
+        #loader {
+            background: linear-gradient(135deg, var(--slate-50) 0%, var(--slate-100) 100%);
+        }
+
+        #loader svg {
+            animation: spin 1s linear infinite;
+            filter: drop-shadow(0 4px 8px rgba(79, 70, 229, 0.3));
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* ===== SIDEBAR ===== */
+        #sidebar {
+            transition: transform var(--transition-slow);
+            backdrop-filter: blur(10px);
+        }
+
+        #sidebar-overlay {
+            transition: opacity var(--transition-slow);
+        }
+
+        /* ===== RESPONSIVE UTILITIES ===== */
+        @media (max-width: 768px) {
+            :root {
+                --spacing-md: 0.75rem;
+                --spacing-lg: 1rem;
+                --spacing-xl: 1.25rem;
+            }
+            
+            .fc .fc-toolbar {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .fc .fc-toolbar-chunk {
+                display: flex;
+                justify-content: center;
+            }
+            
+            table {
+                font-size: 0.875rem;
+            }
+            
+            .modal-content {
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .fc .fc-toolbar-title {
+                font-size: 1.125rem;
+            }
+            
+            .fc .fc-button {
+                padding: 0.375rem 0.75rem;
+                font-size: 0.8125rem;
+            }
+            
+            table td, table th {
+                padding: 0.75rem 0.5rem;
+            }
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .app-page {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* ===== BADGE & STATUS ===== */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: all var(--transition-base);
+        }
+
+        .badge:hover {
+            transform: scale(1.05);
+        }
+
+        /* ===== TOOLTIPS (optional enhancement) ===== */
+        [data-tooltip] {
+            position: relative;
+        }
+
+        [data-tooltip]::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-8px);
+            padding: 0.5rem 0.75rem;
+            background: var(--slate-900);
+            color: white;
+            font-size: 0.75rem;
+            border-radius: var(--radius-md);
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity var(--transition-base);
+            z-index: 1000;
+        }
+
+        [data-tooltip]:hover::after {
+            opacity: 1;
+        }
+
+        /* ===== FOCUS VISIBLE ===== */
+        *:focus-visible {
+            outline: 2px solid var(--primary-600);
+            outline-offset: 2px;
+        }
+
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible,
+        textarea:focus-visible {
+            outline: 2px solid var(--primary-600);
+            outline-offset: 2px;
+        }
+
+        /* ===== ACCESSIBILITY ===== */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        /* ===== PRINT STYLES ===== */
+        @media print {
+            #sidebar,
+            #menu-btn,
+            #add-task-btn,
+            .delete-task-btn,
+            .edit-task-btn,
+            .delete-link-btn {
+                display: none !important;
+            }
+            
+            body {
+                background: white;
+            }
+            
+            .bg-white {
+                box-shadow: none;
+            }
+        }
+
+        /* ===== DARK MODE PREPARATION (optional) ===== */
+        @media (prefers-color-scheme: dark) {
+            /* Uncomment untuk enable dark mode
+            :root {
+                --slate-50: #0f172a;
+                --slate-100: #1e293b;
+                --slate-800: #f1f5f9;
+                --slate-900: #f8fafc;
+            }
+            
+            body {
+                background-color: var(--slate-900);
+                color: var(--slate-100);
+            }
+            */
+        }
+
+        /* ===== PERFORMANCE OPTIMIZATIONS ===== */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* ===== CUSTOM UTILITY CLASSES ===== */
+        .hover-lift {
+            transition: transform var(--transition-base), box-shadow var(--transition-base);
+        }
+
+        .hover-lift:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .pulse-slow {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .gradient-border {
+            position: relative;
+            background: white;
+        }
+
+        .gradient-border::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(45deg, var(--primary-600), var(--primary-800));
+            border-radius: inherit;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity var(--transition-base);
+        }
+
+        .gradient-border:hover::before {
+            opacity: 1;
+        }
+        
+        /* [DIHAPUS] Sisa style lama dihapus karena sudah digantikan oleh CSS di atas */
+        
     </style>
 </head>
 <body class="bg-slate-100">
 
     <!-- ... Loader ... tidak ada perubahan ... -->
-    <!-- Kontainer Loader -->
     <div id="loader" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
-        <!-- SVG Loader (Inline) -->
         <svg class="animate-spin h-10 w-10 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
     </div>
 
-    <!-- Halaman Login -->
+    <!-- ... Halaman Login ... tidak ada perubahan ... -->
     <div id="login-view" class="hidden min-h-screen flex items-center justify-center bg-slate-100 p-4">
         <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
             <h2 class="text-3xl font-bold text-center text-indigo-600 mb-2">Dashboard Proyek C2</h2>
             <p class="text-center text-slate-500 mb-8">Silakan login untuk melanjutkan</p>
-            
             <form id="login-form">
                 <div class="mb-4">
                     <label for="email" class="block text-sm font-medium text-slate-700 mb-2">Email</label>
-                    <!-- [PERBAIKAN] id diubah dari "login-email" menjadi "email" agar cocok dengan label 'for' -->
                     <input type="email" id="email" class="w-full px-4 py-3 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="nama@dashboardc2.com" required>
                 </div>
                 <div class="mb-6">
                     <label for="password" class="block text-sm font-medium text-slate-700 mb-2">Password</label>
-                    <!-- [PERBAIKAN] id diubah dari "login-password" menjadi "password" agar cocok dengan label 'for' -->
                     <input type="password" id="password" class="w-full px-4 py-3 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="••••••••" required>
                 </div>
-                
-                <!-- Pesan Error Login -->
                 <div id="login-error" class="hidden text-sm text-center text-red-600 mb-4 p-3 bg-red-50 rounded-lg"></div>
-
                 <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-200">
                     Login
                 </button>
@@ -641,14 +634,12 @@ textarea:focus-visible {
     <!-- Aplikasi Utama (Dashboard) -->
     <div id="app-view" class="hidden">
         <div class="flex h-screen bg-slate-100">
-            <!-- Sidebar (Navigasi) -->
+            <!-- ... Sidebar ... tidak ada perubahan ... -->
             <nav class="w-64 bg-white shadow-lg flex flex-col flex-shrink-0 absolute md:relative inset-y-0 left-0 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out z-30" id="sidebar">
                 <!-- Header Sidebar -->
                 <div class="flex items-center justify-between h-20 px-6 border-b border-slate-200">
                     <span class="text-2xl font-bold text-indigo-600">Proyek C2</span>
-                    <!-- Tombol Close (Mobile) -->
                     <button id="close-sidebar-btn" class="md:hidden p-1 text-slate-500 hover:text-slate-800">
-                        <!-- SVG Ikon Close (Inline) -->
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
@@ -658,21 +649,22 @@ textarea:focus-visible {
                     <ul class="space-y-2 px-4">
                         <li>
                             <a href="#" data-page="dashboard-page" class="nav-link active flex items-center space-x-3 px-4 py-3 text-slate-700 font-medium rounded-lg hover:bg-slate-100 transition duration-150">
-                                <!-- SVG Ikon Dashboard (Inline) -->
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                                 <span>Dashboard</span>
                             </a>
                         </li>
                         <li>
-                            <a href="#" data-page="todo-page" class="nav-link flex items-center space-x-3 px-4 py-3 text-slate-700 font-medium rounded-lg hover:bg-slate-100 transition duration-150">
-                                <!-- SVG Ikon To-Do (Inline) -->
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
-                                <span>To-Do List</span>
+                            <a href="#" data-page="todo-page" class="nav-link flex items-center justify-between space-x-3 px-4 py-3 text-slate-700 font-medium rounded-lg hover:bg-slate-100 transition duration-150">
+                                <div class="flex items-center space-x-3">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                                    <span>To-Do List</span>
+                                </div>
+                                <!-- [BARU] Badge Counter (awalnya disembunyikan) -->
+                                <span id="todo-badge-counter" class="hidden h-6 w-6 bg-red-600 text-white text-xs font-bold rounded-full flex items-center justify-center">0</span>
                             </a>
                         </li>
                         <li>
                             <a href="#" data-page="timeline-page" class="nav-link flex items-center space-x-3 px-4 py-3 text-slate-700 font-medium rounded-lg hover:bg-slate-100 transition duration-150">
-                                <!-- SVG Ikon Timeline (Inline) -->
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                                 <span>Timeline</span>
                             </a>
@@ -683,50 +675,40 @@ textarea:focus-visible {
                 <!-- User Info & Logout -->
                 <div class="p-4 border-t border-slate-200">
                     <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-full bg-indigo-200 text-indigo-700 flex items-center justify-center font-bold" id="user-avatar">
-                            <!-- Inisial akan diisi oleh JS -->
-                        </div>
+                        <div class="w-10 h-10 rounded-full bg-indigo-200 text-indigo-700 flex items-center justify-center font-bold" id="user-avatar"></div>
                         <div>
                             <div class="font-semibold text-slate-800" id="user-name-display">...</div>
                             <div class="text-xs text-slate-500" id="user-email-display">...</div>
                         </div>
                     </div>
                     <button id="logout-button" class="w-full mt-4 flex items-center justify-center space-x-2 text-sm text-slate-600 font-medium bg-slate-100 hover:bg-slate-200 rounded-lg py-2 transition duration-150">
-                        <!-- SVG Ikon Logout (Inline) -->
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
                         <span>Logout</span>
                     </button>
                 </div>
             </nav>
             
-            <!-- Overlay untuk Sidebar (Mobile) -->
             <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden md:hidden"></div>
 
             <!-- Konten Utama -->
             <main class="flex-1 flex flex-col overflow-hidden">
-                <!-- Header Utama -->
+                <!-- ... Header Utama ... tidak ada perubahan ... -->
                 <header class="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-6">
-                    <!-- Tombol Menu (Mobile) -->
                     <button id="menu-btn" class="md:hidden p-2 text-slate-600 hover:text-slate-900">
-                        <!-- SVG Ikon Menu (Inline) -->
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                     </button>
-                    
                     <h1 class="text-2xl font-semibold text-slate-800" id="page-title">Dashboard</h1>
-                    
                     <button id="add-task-btn" class="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-indigo-700 transition duration-150">
-                        <!-- SVG Ikon Tambah (Inline) -->
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                        <span class="text-sm font-medium">To Do List Baru</span>
+                        <span class="text-sm font-medium">Tugas Baru</span>
                     </button>
                 </header>
                 
                 <!-- Area Konten Halaman (Scrollable) -->
                 <div class="flex-1 overflow-x-hidden overflow-y-auto p-6 md:p-8">
                     
-                    <!-- Halaman Dashboard -->
+                    <!-- ... Halaman Dashboard ... tidak ada perubahan ... -->
                     <div id="dashboard-page" class="app-page">
-                        <!-- ... Konten Dashboard tidak berubah ... -->
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             <!-- Card: Update Terbaru -->
                             <div class="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6">
@@ -764,31 +746,72 @@ textarea:focus-visible {
                                     <ul id="dashboard-links-list" class="divide-y divide-slate-100">
                                         <!-- Daftar link akan diisi oleh JS -->
                                     </ul>
-                                </div>
+                                D</div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Halaman To-Do List -->
+                    <!-- [DIUBAH] Halaman To-Do List -->
                     <div id="todo-page" class="app-page hidden">
-                        <!-- ... Konten To-Do List tidak berubah ... -->
-                        <div class="mb-6 flex flex-col md:flex-row items-center justify-between">
-                            <h2 class="text-2xl font-semibold text-slate-800 mb-4 md:mb-0">Daftar Tugas</h2>
-                            <div class="flex items-center space-x-2">
-                                <label for="todo-user-filter" class="text-sm font-medium text-slate-600">Lihat tugas:</label>
-                                <select id="todo-user-filter" class="bg-white border border-slate-300 rounded-lg shadow-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <!-- Judul Halaman -->
+                        <div class="mb-6">
+                            <h2 class="text-2xl font-semibold text-slate-800">Daftar Tugas</h2>
+                        </div>
+                        
+                        <!-- [BARU] Baris Filter & Search -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6 p-4 bg-white rounded-2xl shadow-lg">
+                            <!-- Search Bar -->
+                            <div class="lg:col-span-2">
+                                <label for="todo-search-bar" class="text-sm font-medium text-slate-600 block mb-1">Cari Tugas</label>
+                                <input type="search" id="todo-search-bar" class="w-full bg-white border border-slate-300 rounded-lg shadow-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Ketik nama tugas...">
+                            </div>
+                            
+                            <!-- Filter PIC -->
+                            <div>
+                                <label for="todo-user-filter" class="text-sm font-medium text-slate-600 block mb-1">PIC</label>
+                                <select id="todo-user-filter" class="w-full bg-white border border-slate-300 rounded-lg shadow-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                                     <!-- Opsi akan diisi oleh JS -->
                                 </select>
                             </div>
+
+                            <!-- Filter Prioritas -->
+                            <div>
+                                <label for="todo-priority-filter" class="text-sm font-medium text-slate-600 block mb-1">Prioritas</label>
+                                <select id="todo-priority-filter" class="w-full bg-white border border-slate-300 rounded-lg shadow-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <!-- Opsi akan diisi oleh JS -->
+                                </select>
+                            </div>
+
+                            <!-- Filter Status -->
+                            <div>
+                                <label for="todo-status-filter" class="text-sm font-medium text-slate-600 block mb-1">Status</label>
+                                <select id="todo-status-filter" class="w-full bg-white border border-slate-300 rounded-lg shadow-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <!-- Opsi akan diisi oleh JS -->
+                                </select>
+                            </div>
+
+                            <!-- [BARU] Urutkan Berdasarkan -->
+                            <div class="lg:col-span-2">
+                                <label for="todo-sort-by" class="text-sm font-medium text-slate-600 block mb-1">Urutkan Berdasarkan</label>
+                                <select id="todo-sort-by" class="w-full bg-white border border-slate-300 rounded-lg shadow-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <option value="priority-deadline">Prioritas & Deadline</option>
+                                    <option value="deadline-only">Deadline (Terdekat)</option>
+                                    <option value="priority-only">Prioritas (Tertinggi)</option>
+                                    <option value="name-asc">Nama (A-Z)</option>
+                                </select>
+                            </div>
                         </div>
-                        
+
+                        <!-- Tabel Tugas -->
                         <div class="bg-white rounded-2xl shadow-lg">
                             <div class="overflow-x-auto">
-                                <table class="w-full min-w-[700px]">
+                                <table class="w-full min-w-[800px]">
                                     <thead class="bg-slate-50 border-b border-slate-200">
                                         <tr>
                                             <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Nama Tugas</th>
                                             <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">PIC</th>
+                                            <!-- [BARU] Kolom Prioritas -->
+                                            <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Prioritas</th>
                                             <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Mulai</th>
                                             <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Deadline</th>
                                             <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Progress</th>
@@ -798,7 +821,7 @@ textarea:focus-visible {
                                     </thead>
                                     <tbody id="todo-list-body" class="divide-y divide-slate-100">
                                         <tr>
-                                            <td colspan="7" class="px-6 py-12 text-center text-slate-500">Memuat tugas...</td>
+                                            <td colspan="8" class="px-6 py-12 text-center text-slate-500">Memuat tugas...</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -806,7 +829,7 @@ textarea:focus-visible {
                         </div>
                     </div>
                     
-                    <!-- Halaman Timeline -->
+                    <!-- ... Halaman Timeline ... tidak ada perubahan ... -->
                     <div id="timeline-page" class="app-page hidden">
                         <!-- Filter Anggota (Tidak berubah) -->
                         <div class="mb-6 flex flex-col md:flex-row items-center justify-between">
@@ -821,7 +844,6 @@ textarea:focus-visible {
                         
                         <!-- Kontainer Kalender -->
                         <div class="bg-white rounded-2xl shadow-lg p-4 md:p-6">
-                            <!-- Div ini akan diisi oleh FullCalendar -->
                             <div id="timeline-calendar" class="min-h-[750px]"></div>
                         </div>
                     </div>
@@ -831,8 +853,7 @@ textarea:focus-visible {
         </div>
     </div>
     
-    <!-- ... Modal Tugas dan Modal Konfirmasi tidak berubah ... -->
-    <!-- Modal: Tambah/Edit Tugas -->
+    <!-- [DIUBAH] Modal: Tambah/Edit Tugas -->
     <div id="task-modal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-40 opacity-0 transform scale-95">
         <div class="modal-content bg-white w-full max-w-2xl rounded-2xl shadow-xl overflow-hidden transform scale-100">
             <form id="task-form">
@@ -840,12 +861,11 @@ textarea:focus-visible {
                 <div class="flex items-center justify-between p-6 border-b border-slate-200">
                     <h3 class="text-xl font-semibold text-slate-800" id="task-modal-title">Tambah Tugas Baru</h3>
                     <button type="button" id="close-task-modal-btn" class="p-1 text-slate-400 hover:text-slate-700">
-                        <!-- SVG Ikon Close (Inline) -->
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
                 
-                <!-- Body Modal (Tidak berubah) -->
+                <!-- Body Modal -->
                 <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
                     <!-- Hidden input untuk task ID (saat edit) -->
                     <input type="hidden" id="task-id">
@@ -855,9 +875,9 @@ textarea:focus-visible {
                         <input type="text" id="task-name" class="w-full px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
-                            <label for="task-pic" class="block text-sm font-medium text-slate-700 mb-2">PIC (Penanggung Jawab)</label>
+                            <label for="task-pic" class="block text-sm font-medium text-slate-700 mb-2">PIC</label>
                             <select id="task-pic" class="w-full bg-white px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
                                 <!-- Opsi PIC akan diisi oleh JS -->
                             </select>
@@ -869,6 +889,15 @@ textarea:focus-visible {
                                 <option value="On Going">On Going</option>
                                 <option value="On Review">On Review</option>
                                 <option value="Done">Done</option>
+                            </select>
+                        </div>
+                        <!-- [BARU] Input Prioritas -->
+                        <div>
+                            <label for="task-priority" class="block text-sm font-medium text-slate-700 mb-2">Prioritas</label>
+                            <select id="task-priority" class="w-full bg-white px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                                <option value="Sedang">Sedang (Default)</option>
+                                <option value="Tinggi">Tinggi</option>
+                                <option value="Rendah">Rendah</option>
                             </select>
                         </div>
                     </div>
@@ -890,7 +919,7 @@ textarea:focus-visible {
                     </div>
                 </div>
                 
-                <!-- Footer Modal (Tidak berubah) -->
+                <!-- Footer Modal -->
                 <div class="flex items-center justify-end p-6 bg-slate-50 border-t border-slate-200 space-x-3">
                     <button type="button" id="cancel-task-btn" class="bg-white text-slate-700 px-5 py-2 rounded-lg border border-slate-300 hover:bg-slate-50 transition duration-150">Batal</button>
                     <button type="submit" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-medium shadow-md hover:bg-indigo-700 transition duration-150">Simpan Tugas</button>
@@ -899,14 +928,12 @@ textarea:focus-visible {
         </div>
     </div>
 
-    <!-- Modal Konfirmasi Hapus -->
+    <!-- ... Modal Konfirmasi Hapus ... tidak ada perubahan ... -->
     <div id="confirm-modal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 opacity-0 transform scale-95">
         <div class="modal-content bg-white w-full max-w-sm rounded-2xl shadow-xl overflow-hidden transform scale-100">
-            <!-- Header Modal -->
             <div class="p-6">
                 <div class="flex items-start space-x-3">
                     <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-full bg-red-100">
-                        <!-- SVG Ikon Peringatan (Inline) -->
                         <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                     </div>
                     <div>
@@ -915,7 +942,6 @@ textarea:focus-visible {
                     </div>
                 </div>
             </div>
-            <!-- Footer Modal -->
             <div class="flex items-center justify-end p-4 bg-slate-50 space-x-3">
                 <button type="button" id="confirm-modal-cancel-btn" class="bg-white text-slate-700 px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-50 transition duration-150 text-sm font-medium">Batal</button>
                 <button type="button" id="confirm-modal-ok-btn" class="bg-red-600 text-white px-4 py-2 rounded-lg font-medium shadow-md hover:bg-red-700 transition duration-150 text-sm">Ya, Hapus</button>
@@ -953,7 +979,7 @@ textarea:focus-visible {
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         
         // ... Konfigurasi Firebase, Rules, User Map ... tidak berubah
-        // 1. KONFIGURASI FIREBASE ANDA
+        // 1. KONFIGURASI FIREBASE
         const firebaseConfig = {
           apiKey: "AIzaSyBtpMYmcda23q5rTGcqZMFO57EcSLq9hCM",
           authDomain: "dashboardproyek3c2.firebaseapp.com",
@@ -965,9 +991,7 @@ textarea:focus-visible {
         };
         
         // 2. ATURAN KEAMANAN FIRESTORE
-        /* PASTIKAN RULES INI SUDAH DI-PUBLISH DI FIRESTORE:
-            
-            rules_version = '2';
+        /* rules_version = '2';
             service cloud.firestore {
               match /databases/{database}/documents {
                 match /users_status/{userId} {
@@ -990,7 +1014,6 @@ textarea:focus-visible {
         // 3. AUTENTIKASI PENGGUNA
         // (Pastikan 5 akun sudah dibuat di Firebase Auth Console)
 
-
         // Inisialisasi Firebase
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
@@ -1006,27 +1029,37 @@ textarea:focus-visible {
             "andin@dashboardc2.com": "Andin"
         };
         const teamNames = ["Dhanu", "Hisyam", "Dava", "Nezya", "Andin"];
+        const taskStatuses = ["Direncanakan", "On Going", "On Review", "Done"];
+        const taskPriorities = ["Tinggi", "Sedang", "Rendah"];
 
         // Variabel Global
         let currentUser = null;
         let unsubscribeListeners = [];
-        let projectProgressChart = null; // Instance chart dashboard
-        let timelineCalendar = null; // [DIUBAH] Mengganti timelineGanttChart
-        
-        // [BARU] Definisikan warna progress untuk kalender
-        const progressCalendarColors = {
-            "Direncanakan": { bg: '#e2e8f0', border: '#94a3b8' }, // slate-200, slate-400
-            "On Going":     { bg: '#dbeafe', border: '#3b82f6' }, // blue-100, blue-500
-            "On Review":    { bg: '#fef9c3', border: '#eab308' }, // yellow-100, yellow-500
-            "Done":         { bg: '#dcfce7', border: '#22c55e' }  // green-100, green-500
+        let projectProgressChart = null;
+        let timelineCalendar = null;
+        let allTasksCache = []; // [BARU] Cache untuk semua tugas dari Firestore
+
+        // [BARU] Definisi warna dan bobot untuk prioritas
+        const priorityDisplay = {
+            "Tinggi": { bg: 'bg-red-100', text: 'text-red-700', border: '#ef4444' },
+            "Sedang": { bg: 'bg-yellow-100', text: 'text-yellow-700', border: '#eab308' },
+            "Rendah": { bg: 'bg-green-100', text: 'text-green-700', border: '#22c55e' },
+            "default": { bg: 'bg-slate-100', text: 'text-slate-600', border: '#64748b' }
         };
+        
+        const priorityWeight = {
+            "Tinggi": 3,
+            "Sedang": 2,
+            "Rendah": 1,
+            "undefined": 0
+        };
+
 
         // ... Elemen DOM (Login, App, Navigasi) ... tidak berubah
         const loader = document.getElementById('loader');
         const loginView = document.getElementById('login-view');
         const appView = document.getElementById('app-view');
         const loginForm = document.getElementById('login-form');
-        // [PERBAIKAN] Menggunakan id 'email' dan 'password' yang sudah benar
         const loginEmail = document.getElementById('email'); 
         const loginPassword = document.getElementById('password');
         const loginError = document.getElementById('login-error');
@@ -1037,22 +1070,29 @@ textarea:focus-visible {
         const userNameDisplay = document.getElementById('user-name-display');
         const userEmailDisplay = document.getElementById('user-email-display');
         const userAvatar = document.getElementById('user-avatar');
+        const todoBadgeCounter = document.getElementById('todo-badge-counter'); // [BARU]
         
-        // ... Elemen DOM (Dashboard, To-Do) ... tidak berubah
+        // ... Elemen DOM (Dashboard) ... tidak berubah
         const recentUpdatesList = document.getElementById('recent-updates-list');
         const onlineUsersList = document.getElementById('online-users-list');
         const addLinkForm = document.getElementById('add-link-form');
         const linkNameInput = document.getElementById('link-name');
         const linkUrlInput = document.getElementById('link-url');
         const dashboardLinksList = document.getElementById('dashboard-links-list');
-        const todoUserFilter = document.getElementById('todo-user-filter');
-        const todoListBody = document.getElementById('todo-list-body');
         
-        // [DIUBAH] Elemen DOM Timeline
-        const timelineUserFilter = document.getElementById('timeline-user-filter');
-        const calendarEl = document.getElementById('timeline-calendar'); // [BARU]
+        // [DIUBAH] Elemen DOM To-Do
+        const todoListBody = document.getElementById('todo-list-body');
+        const todoUserFilter = document.getElementById('todo-user-filter');
+        const todoSearchBar = document.getElementById('todo-search-bar'); // [BARU]
+        const todoPriorityFilter = document.getElementById('todo-priority-filter'); // [BARU]
+        const todoStatusFilter = document.getElementById('todo-status-filter'); // [BARU]
+        const todoSortBy = document.getElementById('todo-sort-by'); // [BARU]
 
-        // ... Elemen DOM (Modal Tugas, Modal Konfirmasi, Nav Mobile) ... tidak berubah
+        // ... Elemen DOM (Timeline) ... tidak berubah
+        const timelineUserFilter = document.getElementById('timeline-user-filter');
+        const calendarEl = document.getElementById('timeline-calendar');
+
+        // [DIUBAH] Elemen DOM Modal Tugas
         const addTaskBtn = document.getElementById('add-task-btn');
         const taskModal = document.getElementById('task-modal');
         const closeTaskModalBtn = document.getElementById('close-task-modal-btn');
@@ -1063,9 +1103,12 @@ textarea:focus-visible {
         const taskNameInput = document.getElementById('task-name');
         const taskPicSelect = document.getElementById('task-pic');
         const taskProgressSelect = document.getElementById('task-progress');
+        const taskPrioritySelect = document.getElementById('task-priority'); // [BARU]
         const taskStartDateInput = document.getElementById('task-start-date');
         const taskDeadlineDateInput = document.getElementById('task-deadline-date');
         const taskLinkInput = document.getElementById('task-link');
+        
+        // ... Elemen DOM (Nav Mobile, Modal Konfirmasi) ... tidak berubah
         const menuBtn = document.getElementById('menu-btn');
         const closeSidebarBtn = document.getElementById('close-sidebar-btn');
         const sidebar = document.getElementById('sidebar');
@@ -1090,6 +1133,7 @@ textarea:focus-visible {
                 taskNameInput.value = task.taskName;
                 taskPicSelect.value = task.picName;
                 taskProgressSelect.value = task.progress;
+                taskPrioritySelect.value = task.priority || "Sedang"; // [DIUBAH]
                 taskStartDateInput.value = task.startDate;
                 taskDeadlineDateInput.value = task.deadlineDate;
                 taskLinkInput.value = task.documentLink;
@@ -1099,6 +1143,7 @@ textarea:focus-visible {
                 taskIdInput.value = "";
                 taskPicSelect.value = currentUser.name; 
                 taskProgressSelect.value = "Direncanakan";
+                taskPrioritySelect.value = "Sedang"; // [DIUBAH]
             }
             taskModal.classList.remove('hidden', 'opacity-0', 'scale-95');
         }
@@ -1129,14 +1174,13 @@ textarea:focus-visible {
             hideConfirmationModal();
         });
 
-        // [DIUBAH] Fungsi navigasi halaman
+        // ... navigateTo ... tidak berubah
         function navigateTo(pageId) {
             pages.forEach(page => page.classList.add('hidden'));
             const targetPage = document.getElementById(pageId);
             if (targetPage) {
                 targetPage.classList.remove('hidden');
             }
-            
             let pageTitleText = "Dashboard";
             navLinks.forEach(link => {
                 if (link.dataset.page === pageId) {
@@ -1146,75 +1190,64 @@ textarea:focus-visible {
                     link.classList.remove('active');
                 }
             });
-            
             pageTitle.innerText = pageTitleText;
-            
-            // [BARU] Beri tahu FullCalendar untuk me-render ulang ukurannya 
-            // saat tab-nya menjadi terlihat.
             if (pageId === 'timeline-page' && timelineCalendar) {
-                // Gunakan setTimeout agar render terjadi setelah div terlihat
                 setTimeout(() => {
                     timelineCalendar.updateSize();
                 }, 0);
             }
-            
             sidebar.classList.add('-translate-x-full');
             sidebarOverlay.classList.add('hidden');
         }
         
         // --- Fungsi Inisialisasi ---
         
-        // ... populateDropdowns ... tidak berubah
+        // [DIUBAH] Mengisi semua dropdown
         function populateDropdowns() {
-            const filters = [todoUserFilter, timelineUserFilter, taskPicSelect];
-            filters.forEach(select => {
+            // 1. Filter PIC (di To-Do & Timeline) dan Modal PIC
+            const picFilters = [todoUserFilter, timelineUserFilter, taskPicSelect];
+            picFilters.forEach(select => {
                 if (!select) return;
-                select.innerHTML = '';
+                select.innerHTML = ''; 
                 if (select.id.includes('filter')) {
-                    const allOption = document.createElement('option');
-                    allOption.value = 'Semua';
-                    allOption.innerText = 'Semua Anggota';
-                    select.appendChild(allOption);
+                    select.add(new Option('Semua PIC', 'Semua'));
                 }
-                teamNames.forEach(name => {
-                    const option = document.createElement('option');
-                    option.value = name;
-                    option.innerText = name;
-                    select.appendChild(option);
-                });
+                teamNames.forEach(name => select.add(new Option(name, name)));
             });
+
+            // 2. Filter Prioritas (di To-Do)
+            todoPriorityFilter.innerHTML = '';
+            todoPriorityFilter.add(new Option('Semua Prioritas', 'Semua'));
+            taskPriorities.forEach(prio => todoPriorityFilter.add(new Option(prio, prio)));
+            
+            // 3. Filter Status (di To-Do)
+            todoStatusFilter.innerHTML = '';
+            todoStatusFilter.add(new Option('Semua Status', 'Semua'));
+            taskStatuses.forEach(status => todoStatusFilter.add(new Option(status, status)));
         }
         
-        // [BARU] Fungsi untuk inisialisasi kalender
+        // ... initializeCalendar ... tidak berubah
         function initializeCalendar() {
-            // Hanya inisialisasi jika belum ada
             if (timelineCalendar) return; 
-            
             timelineCalendar = new FullCalendar.Calendar(calendarEl, {
-                locale: 'id', // Bahasa Indonesia
-                initialView: 'dayGridMonth', // Tampilan bulan
+                locale: 'id',
+                initialView: 'dayGridMonth',
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,listWeek' // Opsi tampilan
+                    right: 'dayGridMonth,timeGridWeek,listWeek'
                 },
-                height: 'auto', // Biarkan tingginya menyesuaikan
-                events: [], // Mulai dengan event kosong
-                
-                // [BARU] Aksi saat event (tugas) diklik
+                height: 'auto',
+                events: [],
                 eventClick: async (clickInfo) => {
                     const taskId = clickInfo.event.id;
                     try {
-                        // Ambil data terbaru dari Firestore untuk diedit
                         const taskRef = doc(db, "todos", taskId);
                         const taskSnap = await getDoc(taskRef);
                         if (taskSnap.exists()) {
-                            // Gunakan data lengkap dari Firestore
                             showTaskModal({ id: taskSnap.id, ...taskSnap.data() });
                         } else {
-                            // Fallback jika data tidak ada (seharusnya tidak terjadi)
-                            // Gunakan data dari 'extendedProps'
-                            console.warn("Task not found in Firestore, using cached event data.");
+                            console.warn("Task not found, using cached event data.");
                             showTaskModal(clickInfo.event.extendedProps.taskData);
                         }
                     } catch (error) {
@@ -1222,7 +1255,6 @@ textarea:focus-visible {
                     }
                 }
             });
-            
             timelineCalendar.render();
         }
 
@@ -1236,12 +1268,10 @@ textarea:focus-visible {
         });
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            // [PERBAIKAN] Menggunakan id 'email' dan 'password'
             const email = loginEmail.value; 
             const password = loginPassword.value;
             loginError.classList.add('hidden');
             showLoader();
-            
             try {
                 await signInWithEmailAndPassword(auth, email, password);
             } catch (error) {
@@ -1335,19 +1365,25 @@ textarea:focus-visible {
         
         // [DIUBAH] Listener untuk semua tugas
         function listenAllTasks() {
-            const q = query(collection(db, "todos"), orderBy("deadlineDate", "asc"));
+            // [DIHAPUS] Sorting 'orderBy' dihapus dari query, 
+            // kita akan sorting di sisi klien (browser)
+            const q = query(collection(db, "todos")); 
             const unsubscribe = onSnapshot(q, (snapshot) => {
-                const allTasks = [];
+                allTasksCache = []; // Reset cache
                 snapshot.forEach(doc => {
-                    allTasks.push({ id: doc.id, ...doc.data() });
+                    allTasksCache.push({ id: doc.id, ...doc.data() });
                 });
                 
-                // Render semua yang bergantung pada data tugas
-                renderTodoList(allTasks);
-                renderProjectProgressChart(allTasks);
+                // Render chart dan kalender (yang tidak terpengaruh filter)
+                renderProjectProgressChart(allTasksCache);
+                renderTimelineCalendar(allTasksCache); 
                 
-                // [DIUBAH] Render kalender, bukan gantt chart
-                renderTimelineCalendar(allTasks); 
+                // [BARU] Terapkan filter dan render To-Do List
+                applyFiltersAndRender();
+                
+                // [BARU] Update badge counter
+                updateTodoBadgeCounter(allTasksCache);
+                
             }, (error) => console.error("Error listenAllTasks: ", error));
             unsubscribeListeners.push(unsubscribe);
         }
@@ -1363,12 +1399,12 @@ textarea:focus-visible {
         function detachRealtimeListeners() {
             unsubscribeListeners.forEach(unsub => unsub());
             unsubscribeListeners = [];
+            allTasksCache = []; // Kosongkan cache
         }
 
         // --- Fungsi Render (Update UI) ---
 
-        // ... renderOnlineUsers, renderRecentUpdates, renderDashboardLinks, renderTodoList, renderProjectProgressChart ... tidak berubah
-        // (Saya singkat agar tidak terlalu panjang, kodenya sama)
+        // ... renderOnlineUsers, renderRecentUpdates, renderDashboardLinks ... tidak berubah
         function renderOnlineUsers(onlineUsers) {
             onlineUsersList.innerHTML = '';
             if (onlineUsers.length === 0) {
@@ -1420,25 +1456,78 @@ textarea:focus-visible {
                     </li>`;
             });
         }
-        function renderTodoList(allTasks) {
+
+        // [BARU] Fungsi filter dan sorting utama
+        function applyFiltersAndRender() {
+            const searchTerm = todoSearchBar.value.toLowerCase();
             const selectedUser = todoUserFilter.value;
-            const filteredTasks = (selectedUser === 'Semua') 
-                ? allTasks 
-                : allTasks.filter(task => task.picName === selectedUser);
-            
+            const selectedPriority = todoPriorityFilter.value;
+            const selectedStatus = todoStatusFilter.value;
+            const sortBy = todoSortBy.value;
+
+            let filteredTasks = [...allTasksCache];
+
+            // 1. Terapkan semua filter
+            filteredTasks = filteredTasks.filter(task => {
+                const matchesSearch = task.taskName.toLowerCase().includes(searchTerm);
+                const matchesUser = (selectedUser === 'Semua') || (task.picName === selectedUser);
+                const matchesPriority = (selectedPriority === 'Semua') || (task.priority === selectedPriority);
+                const matchesStatus = (selectedStatus === 'Semua') || (task.progress === selectedStatus);
+                
+                return matchesSearch && matchesUser && matchesPriority && matchesStatus;
+            });
+
+            // 2. Terapkan sorting
+            filteredTasks.sort((a, b) => {
+                const prioA = priorityWeight[a.priority] || 0;
+                const prioB = priorityWeight[b.priority] || 0;
+                const deadlineA = new Date(a.deadlineDate).getTime();
+                const deadlineB = new Date(b.deadlineDate).getTime();
+                
+                switch(sortBy) {
+                    case 'priority-deadline':
+                        if (prioA !== prioB) return prioB - prioA; // Prioritas Tertinggi dulu
+                        return deadlineA - deadlineB; // Deadline Terdekat dulu
+                    case 'deadline-only':
+                        return deadlineA - deadlineB;
+                    case 'priority-only':
+                        return prioB - prioA;
+                    case 'name-asc':
+                        return a.taskName.localeCompare(b.taskName);
+                    default:
+                        return 0;
+                }
+            });
+
+            // 3. Render tabel dengan data yang sudah difilter & disortir
+            renderTodoList(filteredTasks);
+        }
+        
+        // [DIUBAH] Render daftar To-Do
+        function renderTodoList(tasksToRender) {
+            // Fungsi ini sekarang HANYA me-render, tidak lagi mem-filter
             todoListBody.innerHTML = '';
-            if (filteredTasks.length === 0) {
-                todoListBody.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-slate-500">Tidak ada tugas untuk ${selectedUser}.</td></tr>`;
+            
+            if (tasksToRender.length === 0) {
+                todoListBody.innerHTML = `<tr><td colspan="8" class="px-6 py-12 text-center text-slate-500">Tidak ada tugas yang cocok dengan filter Anda.</td></tr>`;
                 return;
             }
+            
             const progressColors = {
                 "Direncanakan": "bg-slate-200 text-slate-700",
                 "On Going": "bg-blue-100 text-blue-700",
                 "On Review": "bg-yellow-100 text-yellow-700",
                 "Done": "bg-green-100 text-green-700"
             };
-            filteredTasks.forEach(task => {
+
+            tasksToRender.forEach(task => {
                 const progressClass = progressColors[task.progress] || "bg-slate-100";
+                
+                // [BARU] Dapatkan style prioritas
+                const prio = task.priority || "default";
+                const prioStyle = priorityDisplay[prio] || priorityDisplay["default"];
+                const prioClass = `${prioStyle.bg} ${prioStyle.text}`;
+
                 const isLink = task.documentLink && (task.documentLink.startsWith('http') || task.documentLink.startsWith('www'));
                 let linkUrl = task.documentLink || '';
                 if(isLink && !linkUrl.startsWith('http')) {
@@ -1447,10 +1536,17 @@ textarea:focus-visible {
                 const linkHTML = isLink
                     ? `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:underline">Link Dokumen</a>`
                     : `<span class="text-slate-600">${task.documentLink || '-'}</span>`;
+
                 todoListBody.innerHTML += `
                     <tr class="hover:bg-slate-50">
                         <td class="px-6 py-4 text-sm font-medium text-slate-800">${task.taskName}</td>
                         <td class="px-6 py-4 text-sm text-slate-600">${task.picName}</td>
+                        <!-- [BARU] Kolom Prioritas -->
+                        <td class="px-6 py-4 text-sm">
+                            <span class="px-3 py-1 rounded-full font-medium text-xs ${prioClass}">
+                                ${task.priority || 'N/A'}
+                            </span>
+                        </td>
                         <td class="px-6 py-4 text-sm text-slate-600">${task.startDate}</td>
                         <td class="px-6 py-4 text-sm text-slate-600">${task.deadlineDate}</td>
                         <td class="px-6 py-4 text-sm">
@@ -1467,9 +1563,33 @@ textarea:focus-visible {
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                             </button>
                         </td>
-                    </tr>`;
+                    </tr>
+                `;
             });
         }
+        
+        // [BARU] Fungsi untuk update badge counter
+        function updateTodoBadgeCounter(allTasks) {
+            if (!currentUser) return;
+            
+            const today = new Date().setHours(0, 0, 0, 0); // Waktu hari ini pukul 00:00
+            
+            const overdueTasksCount = allTasks.filter(task => {
+                const deadline = new Date(task.deadlineDate).setHours(0, 0, 0, 0);
+                return task.picName === currentUser.name && // Hanya tugas milik user
+                       task.progress !== 'Done' &&      // Yang belum selesai
+                       deadline < today;                // Dan sudah lewat deadline
+            }).length;
+            
+            if (overdueTasksCount > 0) {
+                todoBadgeCounter.innerText = overdueTasksCount;
+                todoBadgeCounter.classList.remove('hidden');
+            } else {
+                todoBadgeCounter.classList.add('hidden');
+            }
+        }
+
+        // ... renderProjectProgressChart ... tidak berubah
         function renderProjectProgressChart(allTasks) {
             const ctx = document.getElementById('project-progress-chart').getContext('2d');
             const counts = {"Direncanakan": 0, "On Going": 0, "On Review": 0, "Done": 0};
@@ -1513,11 +1633,9 @@ textarea:focus-visible {
             }
         }
         
-        // [DIHAPUS] Fungsi renderTimelineChart (Gantt)
-        
-        // [BARU] Render Kalender dengan data
+        // [DIUBAH] Render Kalender dengan data
         function renderTimelineCalendar(allTasks) {
-            if (!timelineCalendar) return; // Jangan lakukan apa-apa jika kalender belum siap
+            if (!timelineCalendar) return; 
             
             const selectedUser = timelineUserFilter.value;
             
@@ -1525,44 +1643,44 @@ textarea:focus-visible {
                 ? allTasks
                 : allTasks.filter(task => task.picName === selectedUser);
 
-            // Ubah format data tugas menjadi format event FullCalendar
             const calendarEvents = filteredTasks.map(task => {
-                const colors = progressCalendarColors[task.progress] || progressCalendarColors['Direncanakan'];
+                // [DIUBAH] Warna event berdasarkan prioritas
+                const prio = task.priority || "default";
+                const colors = priorityDisplay[prio] || priorityDisplay["default"];
                 
-                // [PENTING] FullCalendar menganggap tanggal 'end' sebagai eksklusif.
-                // Jadi, kita harus menambahkan 1 hari ke deadline agar hari itu
-                // termasuk dalam visualisasi.
                 const endDate = new Date(task.deadlineDate);
                 endDate.setDate(endDate.getDate() + 1);
                 
                 return {
                     id: task.id,
-                    title: task.taskName,
+                    title: `[${task.picName}] ${task.taskName}`, // Tambahkan PIC di judul
                     start: task.startDate,
-                    end: endDate.toISOString().split('T')[0], // Format YYYY-MM-DD
-                    backgroundColor: colors.bg,
+                    end: endDate.toISOString().split('T')[0],
+                    backgroundColor: colors.bg.replace('bg-', '#'), // Ambil warna Hex
                     borderColor: colors.border,
-                    textColor: '#1e293b', // slate-800
+                    textColor: colors.text.replace('text-', '#'),
                     extendedProps: {
-                        taskData: task // Simpan data asli tugas
+                        taskData: task
                     }
                 };
             });
             
-            // Hapus event source lama dan tambahkan yang baru
             timelineCalendar.getEventSources().forEach(source => source.remove());
             timelineCalendar.addEventSource(calendarEvents);
         }
         
-        // --- Fungsi CRUD (Create, Read, Update, Delete) ---
-        // ... taskForm submit, addLinkForm submit, document.body.click ... tidak berubah
+        // --- Fungsi CRUD ---
+
+        // [DIUBAH] Menangani form submit tugas (Tambah atau Edit)
         taskForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const taskId = taskIdInput.value;
+            
             const taskData = {
                 taskName: taskNameInput.value,
                 picName: taskPicSelect.value,
                 progress: taskProgressSelect.value,
+                priority: taskPrioritySelect.value, // [BARU]
                 startDate: taskStartDateInput.value,
                 deadlineDate: taskDeadlineDateInput.value,
                 documentLink: taskLinkInput.value,
@@ -1570,7 +1688,8 @@ textarea:focus-visible {
             };
             
             if (new Date(taskData.deadlineDate) < new Date(taskData.startDate)) {
-                alert("Tanggal Deadline tidak boleh sebelum Start Tanggal.");
+                // [DIUBAH] Menggunakan modal kustom, bukan alert()
+                showConfirmationModal("Input Salah", "Tanggal Deadline tidak boleh sebelum Start Tanggal.", () => {});
                 return;
             }
 
@@ -1588,10 +1707,11 @@ textarea:focus-visible {
                 hideTaskModal();
             } catch (error) {
                 console.error("Error saving task:", error);
-                alert("Gagal menyimpan tugas. Cek konsol untuk detail.");
+                showConfirmationModal("Error", "Gagal menyimpan tugas: " + error.message, () => {});
             }
         });
         
+        // ... addLinkForm submit, document.body.click (CRUD) ... tidak berubah
         addLinkForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const name = linkNameInput.value;
@@ -1609,7 +1729,6 @@ textarea:focus-visible {
                 console.error("Error adding link:", error);
             }
         });
-        
         document.body.addEventListener('click', async (e) => {
             const deleteBtn = e.target.closest('.delete-task-btn');
             if (deleteBtn) {
@@ -1628,7 +1747,6 @@ textarea:focus-visible {
                     }
                 );
             }
-            
             const editBtn = e.target.closest('.edit-task-btn');
             if (editBtn) {
                 const taskId = editBtn.dataset.id;
@@ -1642,7 +1760,6 @@ textarea:focus-visible {
                     console.error("Error fetching task for edit:", error);
                 }
             }
-            
             const deleteLinkBtn = e.target.closest('.delete-link-btn');
             if (deleteLinkBtn) {
                 const linkId = deleteLinkBtn.dataset.id;
@@ -1662,20 +1779,22 @@ textarea:focus-visible {
             }
         });
         
-        // [DIUBAH] Event listener untuk perubahan filter
-        todoUserFilter.addEventListener('change', () => {
-            // Kita panggil listener utama lagi untuk memfilter *semua*
-            // (list, chart, dan kalender)
-            listenAllTasks(); 
-        });
+        // [BARU] Event listener untuk semua filter
+        todoSearchBar.addEventListener('input', applyFiltersAndRender);
+        todoUserFilter.addEventListener('change', applyFiltersAndRender);
+        todoPriorityFilter.addEventListener('change', applyFiltersAndRender);
+        todoStatusFilter.addEventListener('change', applyFiltersAndRender);
+        todoSortBy.addEventListener('change', applyFiltersAndRender);
+
+        // Filter di Halaman Timeline
         timelineUserFilter.addEventListener('change', () => {
-            // Panggil listener utama untuk memfilter kalender
-            listenAllTasks();
+            // Cukup render ulang kalender, tidak perlu filter kompleks
+            renderTimelineCalendar(allTasksCache);
         });
 
         // --- Fungsi Utama Auth & Inisialisasi Aplikasi ---
         
-        // [DIUBAH] onAuthStateChanged
+        // ... onAuthStateChanged ... tidak berubah
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 // User berhasil login
@@ -1694,16 +1813,14 @@ textarea:focus-visible {
                     last_seen: serverTimestamp()
                 }, { merge: true });
 
-                // Update UI
                 userNameDisplay.innerText = currentUser.name;
                 userEmailDisplay.innerText = currentUser.email;
                 userAvatar.innerText = currentUser.name.substring(0, 2).toUpperCase();
                 
                 populateDropdowns();
-                
-                // [BARU] Inisialisasi kalender SETELAH login
                 initializeCalendar(); 
                 
+                // Set filter default ke nama user
                 todoUserFilter.value = currentUser.name;
                 timelineUserFilter.value = currentUser.name;
                 
@@ -1718,11 +1835,13 @@ textarea:focus-visible {
                 currentUser = null;
                 detachRealtimeListeners();
                 
-                // [BARU] Hapus kalender saat logout
                 if (timelineCalendar) {
                     timelineCalendar.destroy();
                     timelineCalendar = null;
                 }
+                
+                // [BARU] Sembunyikan badge saat logout
+                todoBadgeCounter.classList.add('hidden');
                 
                 appView.classList.add('hidden');
                 loginView.classList.remove('hidden');
