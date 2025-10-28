@@ -18,11 +18,13 @@
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.14/index.global.min.js'></script>
 
     <style>
+        /* [PERBAIKAN] @import dipindahkan ke baris paling atas */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
         /* ... Font Inter dan style scrollbar tidak berubah ... */
         body {
             font-family: 'Inter', sans-serif;
         }
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         .no-scrollbar { scrollbar-width: none; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .nav-link.active {
@@ -81,7 +83,7 @@
 </head>
 <body class="bg-slate-100">
 
-    <!-- ... Loader, Login View, App View, Sidebar ... tidak ada perubahan ... -->
+    <!-- ... Loader ... tidak ada perubahan ... -->
     <!-- Kontainer Loader -->
     <div id="loader" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
         <!-- SVG Loader (Inline) -->
@@ -100,11 +102,13 @@
             <form id="login-form">
                 <div class="mb-4">
                     <label for="email" class="block text-sm font-medium text-slate-700 mb-2">Email</label>
-                    <input type="email" id="login-email" class="w-full px-4 py-3 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="nama@dashboardc2.com" required>
+                    <!-- [PERBAIKAN] id diubah dari "login-email" menjadi "email" agar cocok dengan label 'for' -->
+                    <input type="email" id="email" class="w-full px-4 py-3 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="nama@dashboardc2.com" required>
                 </div>
                 <div class="mb-6">
                     <label for="password" class="block text-sm font-medium text-slate-700 mb-2">Password</label>
-                    <input type="password" id="login-password" class="w-full px-4 py-3 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="••••••••" required>
+                    <!-- [PERBAIKAN] id diubah dari "login-password" menjadi "password" agar cocok dengan label 'for' -->
+                    <input type="password" id="password" class="w-full px-4 py-3 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="••••••••" required>
                 </div>
                 
                 <!-- Pesan Error Login -->
@@ -285,7 +289,7 @@
                         </div>
                     </div>
                     
-                    <!-- [DIUBAH] Halaman Timeline -->
+                    <!-- Halaman Timeline -->
                     <div id="timeline-page" class="app-page hidden">
                         <!-- Filter Anggota (Tidak berubah) -->
                         <div class="mb-6 flex flex-col md:flex-row items-center justify-between">
@@ -298,9 +302,9 @@
                             </div>
                         </div>
                         
-                        <!-- [DIUBAH] Kontainer Chart menjadi kontainer Kalender -->
+                        <!-- Kontainer Kalender -->
                         <div class="bg-white rounded-2xl shadow-lg p-4 md:p-6">
-                            <!-- [BARU] Div ini akan diisi oleh FullCalendar -->
+                            <!-- Div ini akan diisi oleh FullCalendar -->
                             <div id="timeline-calendar" class="min-h-[750px]"></div>
                         </div>
                     </div>
@@ -505,8 +509,9 @@
         const loginView = document.getElementById('login-view');
         const appView = document.getElementById('app-view');
         const loginForm = document.getElementById('login-form');
-        const loginEmail = document.getElementById('login-email');
-        const loginPassword = document.getElementById('login-password');
+        // [PERBAIKAN] Menggunakan id 'email' dan 'password' yang sudah benar
+        const loginEmail = document.getElementById('email'); 
+        const loginPassword = document.getElementById('password');
         const loginError = document.getElementById('login-error');
         const logoutButton = document.getElementById('logout-button');
         const pages = document.querySelectorAll('.app-page');
@@ -714,7 +719,8 @@
         });
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = loginEmail.value;
+            // [PERBAIKAN] Menggunakan id 'email' dan 'password'
+            const email = loginEmail.value; 
             const password = loginPassword.value;
             loginError.classList.add('hidden');
             showLoader();
