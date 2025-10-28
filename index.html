@@ -296,17 +296,19 @@
 
         // --- Variabel Global ---
         
-        // Konfigurasi Firebase dari environment
-        // !! PENTING: Gunakan __firebase_config yang disediakan oleh Canvas
+        // !! PENTING: Konfigurasi Firebase Anda
         const firebaseConfig = {
-  apiKey: "AIzaSyBtpMYmcda23q5rTGcqZMFO57EcSLq9hCM",
-  authDomain: "dashboardproyek3c2.firebaseapp.com",
-  projectId: "dashboardproyek3c2",
-  storageBucket: "dashboardproyek3c2.firebasestorage.app",
-  messagingSenderId: "436435825783",
-  appId: "1:436435825783:web:0e401267d62220ef648272",
-  measurementId: "G-MBST0KEWEV"
-};
+          apiKey: "AIzaSyBtpMYmcda23q5rTGcqZMFO57EcSLq9hCM",
+          authDomain: "dashboardproyek3c2.firebaseapp.com",
+          projectId: "dashboardproyek3c2",
+          storageBucket: "dashboardproyek3c2.firebasestorage.app",
+          messagingSenderId: "436435825783",
+          appId: "1:436435825783:web:0e401267d62220ef648272",
+          measurementId: "G-MBST0KEWEV"
+        };
+        
+        // Gunakan projectId Anda sebagai appId unik untuk path Firestore
+        const appId = "dashboardproyek3c2";
 
         // Inisialisasi Firebase
         let app, auth, db;
@@ -378,13 +380,9 @@
             } else {
                 console.log("No user signed in, attempting sign in...");
                 try {
-                    if (typeof __initial_auth_token !== 'undefined') {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                        console.log("Signed in with Custom Token.");
-                    } else {
-                        await signInAnonymously(auth);
-                        console.log("Signed in Anonymously.");
-                    }
+                    // Coba sign-in anonim jika tidak ada token khusus
+                    await signInAnonymously(auth);
+                    console.log("Signed in Anonymously.");
                 } catch (error) {
                     console.error("Error signing in:", error);
                 }
@@ -394,8 +392,11 @@
         // --- Logika Login/Logout ---
         loginButton.addEventListener('click', () => {
             if (!currentUserId) {
+                // Jangan gunakan alert()
                 console.error("User ID belum siap. Coba lagi.");
-                alert("Autentikasi belum siap. Silakan tunggu beberapa detik dan coba lagi.");
+                // Tampilkan pesan error non-invasif jika perlu
+                loginButton.textContent = "Autentikasi... Coba lagi";
+                setTimeout(() => loginButton.textContent = "Masuk", 2000);
                 return;
             }
             
@@ -507,7 +508,8 @@
         // --- Logika Presence ---
         async function updatePresence() {
             if (!currentUsername) return;
-            const presenceRef = doc(db, getCollectionPath('presence'), currentUsername);
+            // Gunakan currentUserId sebagai ID unik jika nama bisa sama
+            const presenceRef = doc(db, getCollectionPath('presence'), currentUserId);
             try {
                 await setDoc(presenceRef, { 
                     lastSeen: serverTimestamp(),
@@ -519,8 +521,8 @@
         }
 
         async function clearPresence() {
-            if (!currentUsername) return;
-            const presenceRef = doc(db, getCollectionPath('presence'), currentUsername);
+            if (!currentUserId) return;
+            const presenceRef = doc(db, getCollectionPath('presence'), currentUserId);
             try {
                 await deleteDoc(presenceRef);
                 console.log("Presence dihapus.");
@@ -572,7 +574,8 @@
                     await addDoc(linksCollection, {
                         name: nameInput.value,
                         url: urlInput.value,
-                        addedBy: currentUsername
+                        addedBy: currentUsername,
+                        createdAt: serverTimestamp()
                     });
                     
                     await addUpdate(`${currentUsername} menambahkan tautan baru: ${nameInput.value}`);
@@ -677,60 +680,79 @@
             unsubscribeListeners.forEach(unsub => unsub());
             unsubscribeListeners = [];
             
+            // Pastikan 'db' sudah terinisialisasi
+            if (!db) {
+                console.error("Database (db) tidak terinisialisasi. Listener dibatalkan.");
+                return;
+            }
+            
             // Listener Presence
-            const presenceQuery = query(presenceCollection);
-            const unsubPresence = onSnapshot(presenceQuery, (snapshot) => {
-                const now = Date.now();
-                const online = [];
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const lastSeen = data.lastSeen?.toDate().getTime();
-                    if (lastSeen && (now - lastSeen) < 2 * 60 * 1000) { // 2 menit
-                        online.push(data.username);
-                    }
-                });
-                renderOnlineMembers(online);
-            }, (err) => console.error("Error listener presence:", err));
-            unsubscribeListeners.push(unsubPresence);
+            try {
+                const presenceQuery = query(presenceCollection);
+                const unsubPresence = onSnapshot(presenceQuery, (snapshot) => {
+                    const now = Date.now();
+                    const online = [];
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        const lastSeen = data.lastSeen?.toDate().getTime();
+                        if (lastSeen && (now - lastSeen) < 2 * 60 * 1000) { // 2 menit
+                            online.push(data.username);
+                        }
+                    });
+                    renderOnlineMembers(online);
+                }, (err) => console.error("Error listener presence:", err));
+                unsubscribeListeners.push(unsubPresence);
+            } catch (e) { console.error("Gagal membuat listener presence:", e); }
+
 
             // Listener Updates
-            // Mengambil 20 update terbaru, diurutkan di client
-            const updatesQuery = query(updatesCollection);
-            const unsubUpdates = onSnapshot(updatesQuery, (snapshot) => {
-                let updates = [];
-                snapshot.forEach(doc => updates.push({ id: doc.id, ...doc.data() }));
-                // Urutkan di client (Descending)
-                updates.sort((a, b) => b.timestamp?.toMillis() - a.timestamp?.toMillis());
-                updates = updates.slice(0, 20); // Ambil 20 terbaru
-                renderUpdates(updates);
-            }, (err) => console.error("Error listener updates:", err));
-            unsubscribeListeners.push(unsubUpdates);
+            try {
+                const updatesQuery = query(updatesCollection);
+                const unsubUpdates = onSnapshot(updatesQuery, (snapshot) => {
+                    let updates = [];
+                    snapshot.forEach(doc => updates.push({ id: doc.id, ...doc.data() }));
+                    // Urutkan di client (Descending)
+                    updates.sort((a, b) => b.timestamp?.toMillis() - a.timestamp?.toMillis());
+                    updates = updates.slice(0, 20); // Ambil 20 terbaru
+                    renderUpdates(updates);
+                }, (err) => console.error("Error listener updates:", err));
+                unsubscribeListeners.push(unsubUpdates);
+            } catch (e) { console.error("Gagal membuat listener updates:", e); }
 
             // Listener Links
-            const linksQuery = query(linksCollection);
-            const unsubLinks = onSnapshot(linksQuery, (snapshot) => {
-                let links = [];
-                snapshot.forEach(doc => links.push({ id: doc.id, ...doc.data() }));
-                renderLinks(links);
-            }, (err) => console.error("Error listener links:", err));
-            unsubscribeListeners.push(unsubLinks);
+            try {
+                const linksQuery = query(linksCollection);
+                const unsubLinks = onSnapshot(linksQuery, (snapshot) => {
+                    let links = [];
+                    snapshot.forEach(doc => links.push({ id: doc.id, ...doc.data() }));
+                    // Urutkan di client (Descending)
+                    links.sort((a, b) => b.createdAt?.toMillis() - a.createdAt?.toMillis());
+                    renderLinks(links);
+                }, (err) => console.error("Error listener links:", err));
+                unsubscribeListeners.push(unsubLinks);
+            } catch (e) { console.error("Gagal membuat listener links:", e); }
 
             // Listener To-Dos
-            const todosQuery = query(todosCollection);
-            const unsubTodos = onSnapshot(todosQuery, (snapshot) => {
-                allTodos = [];
-                snapshot.forEach(doc => allTodos.push({ id: doc.id, ...doc.data() }));
-                
-                // Update semua komponen yang bergantung pada todos
-                const activeMemberTodo = todoMemberTabs.dataset.activeMember;
-                renderTodos(activeMemberTodo);
-                
-                const activeMemberTimeline = timelineMemberSelect.value;
-                renderCalendar(activeMemberTimeline);
-                
-                updateChart();
-            }, (err) => console.error("Error listener todos:", err));
-            unsubscribeListeners.push(unsubTodos);
+            try {
+                const todosQuery = query(todosCollection);
+                const unsubTodos = onSnapshot(todosQuery, (snapshot) => {
+                    allTodos = [];
+                    snapshot.forEach(doc => allTodos.push({ id: doc.id, ...doc.data() }));
+                    
+                    // Urutkan di client (Ascending by createdAt)
+                    allTodos.sort((a, b) => a.createdAt?.toMillis() - b.createdAt?.toMillis());
+                    
+                    // Update semua komponen yang bergantung pada todos
+                    const activeMemberTodo = todoMemberTabs.dataset.activeMember;
+                    renderTodos(activeMemberTodo);
+                    
+                    const activeMemberTimeline = timelineMemberSelect.value;
+                    renderCalendar(activeMemberTimeline);
+                    
+                    updateChart();
+                }, (err) => console.error("Error listener todos:", err));
+                unsubscribeListeners.push(unsubTodos);
+            } catch (e) { console.error("Gagal membuat listener todos:", e); }
         }
 
         // --- Fungsi Render ---
@@ -739,7 +761,9 @@
                 onlineList.innerHTML = '<p class="text-gray-500">Tidak ada yang online.</p>';
                 return;
             }
-            onlineList.innerHTML = online.map(name => `
+            // Tampilkan nama unik
+            const uniqueOnline = [...new Set(online)];
+            onlineList.innerHTML = uniqueOnline.map(name => `
                 <div class="flex items-center space-x-2">
                     <span class="h-3 w-3 bg-green-500 rounded-full animate-pulse"></span>
                     <span class="text-gray-700">${name}</span>
@@ -796,7 +820,7 @@
                         <p class="text-xs text-gray-500 mb-2">
                             ${todo.start} s/d ${todo.deadline}
                         </p>
-                        ${todo.link ? `<a href="${todo.link.startsWith('http') ? todo.link : ''}" target="_blank" rel="noopener noreferrer" class="text-xs text-blue-600 block truncate mb-2 hover:underline">${todo.link}</a>` : ''}
+                        ${todo.link ? `<a href="${todo.link.startsWith('http') ? todo.link : '#'}" ${todo.link.startsWith('http') ? 'target="_blank" rel="noopener noreferrer"' : ''} class="text-xs text-blue-600 block truncate mb-2 hover:underline">${todo.link}</a>` : ''}
                         
                         <!-- Di sini bisa tambahkan tombol edit/update progress -->
                     </div>
@@ -876,3 +900,4 @@
 
 </body>
 </html>
+
