@@ -8,51 +8,80 @@
     <!-- Memuat Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Memuat Chart.js (Untuk Grafik Dashboard & Timeline) -->
+    <!-- Memuat Chart.js (Hanya untuk Dashboard) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <!-- Memuat adapter tanggal untuk Chart.js (Dibutuhkan untuk Timeline Gantt Chart) -->
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <!-- [DIHAPUS] Adapter tanggal Chart.js tidak lagi diperlukan untuk timeline -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script> -->
     
-    <!-- Ikon tidak lagi dimuat dari JS eksternal, sekarang inline -->
+    <!-- [BARU] Memuat FullCalendar.js -->
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.14/index.global.min.js'></script>
 
     <style>
-        /* Menggunakan font Inter */
+        /* ... Font Inter dan style scrollbar tidak berubah ... */
         body {
             font-family: 'Inter', sans-serif;
         }
-
-        /* Styling untuk font Inter dari Google Fonts */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-        /* Sembunyikan bilah gulir untuk Firefox */
-        .no-scrollbar {
-            scrollbar-width: none;
-        }
-
-        /* Sembunyikan bilah gulir untuk Chrome, Safari, dan Opera */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        
-        /* Navigasi aktif */
+        .no-scrollbar { scrollbar-width: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
         .nav-link.active {
             background-color: #4f46e5; /* indigo-700 */
             color: white;
         }
-        
-        /* Transisi untuk modal */
-        .modal {
-            transition: opacity 0.25s ease, transform 0.25s ease;
+        .modal { transition: opacity 0.25s ease, transform 0.25s ease; }
+        .modal-content { transition: transform 0.25s ease; }
+
+        /* [BARU] Styling untuk FullCalendar agar cocok dengan Tailwind */
+        :root {
+            --fc-border-color: #e2e8f0; /* slate-200 */
+            --fc-today-bg-color: #f1f5f9; /* slate-100 */
+            --fc-button-bg-color: #4f46e5; /* indigo-600 */
+            --fc-button-border-color: #4f46e5;
+            --fc-button-hover-bg-color: #4338ca; /* indigo-700 */
+            --fc-button-hover-border-color: #4338ca;
+            --fc-button-active-bg-color: #3730a3; /* indigo-800 */
+            --fc-button-active-border-color: #3730a3;
+            --fc-event-border-color: #4338ca;
         }
-        
-        .modal-content {
-            transition: transform 0.25s ease;
+        .fc {
+            font-family: 'Inter', sans-serif;
+        }
+        .fc .fc-toolbar-title {
+            font-size: 1.5rem; /* text-2xl */
+            font-weight: 600; /* font-semibold */
+            color: #1e293b; /* slate-800 */
+        }
+        .fc .fc-button {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem; /* text-sm */
+            font-weight: 500; /* font-medium */
+            text-transform: capitalize;
+            border-radius: 0.5rem; /* rounded-lg */
+        }
+        .fc .fc-button-primary {
+             background-color: var(--fc-button-bg-color);
+             border-color: var(--fc-button-border-color);
+        }
+        .fc .fc-daygrid-day-number {
+            font-size: 0.875rem;
+            color: #334155; /* slate-700 */
+            padding: 0.5rem;
+        }
+        .fc .fc-event {
+            font-size: 0.75rem; /* text-xs */
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem; /* rounded-md */
+            cursor: pointer;
+        }
+        .fc .fc-event-title {
+            font-weight: 500;
         }
     </style>
 </head>
 <body class="bg-slate-100">
 
+    <!-- ... Loader, Login View, App View, Sidebar ... tidak ada perubahan ... -->
     <!-- Kontainer Loader -->
     <div id="loader" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
         <!-- SVG Loader (Inline) -->
@@ -64,7 +93,6 @@
 
     <!-- Halaman Login -->
     <div id="login-view" class="hidden min-h-screen flex items-center justify-center bg-slate-100 p-4">
-        <!-- ... Konten login tidak berubah ... -->
         <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
             <h2 class="text-3xl font-bold text-center text-indigo-600 mb-2">Dashboard Proyek C2</h2>
             <p class="text-center text-slate-500 mb-8">Silakan login untuk melanjutkan</p>
@@ -215,7 +243,7 @@
                                     <ul id="dashboard-links-list" class="divide-y divide-slate-100">
                                         <!-- Daftar link akan diisi oleh JS -->
                                     </ul>
-                                </div>
+                                D</div>
                             </div>
                         </div>
                     </div>
@@ -257,11 +285,11 @@
                         </div>
                     </div>
                     
-                    <!-- Halaman Timeline -->
+                    <!-- [DIUBAH] Halaman Timeline -->
                     <div id="timeline-page" class="app-page hidden">
-                        <!-- ... Konten Timeline tidak berubah ... -->
+                        <!-- Filter Anggota (Tidak berubah) -->
                         <div class="mb-6 flex flex-col md:flex-row items-center justify-between">
-                            <h2 class="text-2xl font-semibold text-slate-800 mb-4 md:mb-0">Timeline Tugas (Gantt Chart)</h2>
+                            <h2 class="text-2xl font-semibold text-slate-800 mb-4 md:mb-0">Timeline Kalender</h2>
                             <div class="flex items-center space-x-2">
                                 <label for="timeline-user-filter" class="text-sm font-medium text-slate-600">Lihat timeline:</label>
                                 <select id="timeline-user-filter" class="bg-white border border-slate-300 rounded-lg shadow-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
@@ -270,10 +298,10 @@
                             </div>
                         </div>
                         
-                        <div class="bg-white rounded-2xl shadow-lg p-6">
-                            <div class="h-[600px] relative">
-                                <canvas id="timeline-chart"></canvas>
-                            </div>
+                        <!-- [DIUBAH] Kontainer Chart menjadi kontainer Kalender -->
+                        <div class="bg-white rounded-2xl shadow-lg p-4 md:p-6">
+                            <!-- [BARU] Div ini akan diisi oleh FullCalendar -->
+                            <div id="timeline-calendar" class="min-h-[750px]"></div>
                         </div>
                     </div>
                     
@@ -282,6 +310,7 @@
         </div>
     </div>
     
+    <!-- ... Modal Tugas dan Modal Konfirmasi tidak berubah ... -->
     <!-- Modal: Tambah/Edit Tugas -->
     <div id="task-modal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-40 opacity-0 transform scale-95">
         <div class="modal-content bg-white w-full max-w-2xl rounded-2xl shadow-xl overflow-hidden transform scale-100">
@@ -349,7 +378,7 @@
         </div>
     </div>
 
-    <!-- [BARU] Modal Konfirmasi Hapus -->
+    <!-- Modal Konfirmasi Hapus -->
     <div id="confirm-modal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 opacity-0 transform scale-95">
         <div class="modal-content bg-white w-full max-w-sm rounded-2xl shadow-xl overflow-hidden transform scale-100">
             <!-- Header Modal -->
@@ -376,7 +405,7 @@
 
     <!-- Script JavaScript dan Firebase -->
     <script type="module">
-        // Import fungsi Firebase
+        // Import fungsi Firebase (tidak berubah)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
         import { 
@@ -402,12 +431,8 @@
             updateDoc
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         
-        //
-        // !!!!!!!!!!! KONFIGURASI PENTING !!!!!!!!!!!
-        //
-        
+        // ... Konfigurasi Firebase, Rules, User Map ... tidak berubah
         // 1. KONFIGURASI FIREBASE ANDA
-        // Ini diambil dari yang Anda berikan.
         const firebaseConfig = {
           apiKey: "AIzaSyBtpMYmcda23q5rTGcqZMFO57EcSLq9hCM",
           authDomain: "dashboardproyek3c2.firebaseapp.com",
@@ -418,34 +443,31 @@
           measurementId: "G-MBST0KEWEV"
         };
         
-        // 2. ATURAN KEAMANAN FIRESTORE (SECURITY RULES)
-        // !!!!!!!!!!! PASTIKAN ANDA SUDAH MENGGANTI RULES DI FIREBASE CONSOLE !!!!!!!!!!!
-        /*
-        
-        rules_version = '2';
-        service cloud.firestore {
-          match /databases/{database}/documents {
+        // 2. ATURAN KEAMANAN FIRESTORE
+        /* PASTIKAN RULES INI SUDAH DI-PUBLISH DI FIRESTORE:
             
-            // Siapapun yang sudah login bisa membaca status online
-            match /users_status/{userId} {
-              allow read: if request.auth != null;
-              // Hanya user itu sendiri yang bisa menulis status onlinenya
-              allow write: if request.auth != null && request.auth.uid == userId;
+            rules_version = '2';
+            service cloud.firestore {
+              match /databases/{database}/documents {
+                match /users_status/{userId} {
+                  allow read: if request.auth != null;
+                  allow write: if request.auth != null && request.auth.uid == userId;
+                }
+                match /todos/{todoId} {
+                  allow read, write: if request.auth != null;
+                }
+                match /dashboard_links/{linkId} {
+                  allow read, write: if request.auth != null;
+                }
+                match /updates/{updateId} {
+                  allow read, write: if request.auth != null;
+                }
+              }
             }
-            
-            // Siapapun yang sudah login bisa membaca dan menulis (membuat, edit, hapus)
-            // todos, dashboard_links, dan updates.
-            match /(todos|dashboard_links|updates)/{document=**} {
-              allow read, write: if request.auth != null;
-            }
-          }
-        }
-        
         */
         
         // 3. AUTENTIKASI PENGGUNA
-        // !!!!!!!!!!! PASTIKAN ANDA SUDAH MENGAKTIFKAN AUTHENTICATION EMAIL/PASSWORD !!!!!!!!!!!
-        // !!!!!!!!!!! DAN SUDAH MEMBUAT 5 AKUN PENGGUNA DI FIREBASE CONSOLE !!!!!!!!!!!
+        // (Pastikan 5 akun sudah dibuat di Firebase Auth Console)
 
 
         // Inisialisasi Firebase
@@ -466,11 +488,19 @@
 
         // Variabel Global
         let currentUser = null;
-        let unsubscribeListeners = []; // Menyimpan semua listener snapshot
+        let unsubscribeListeners = [];
         let projectProgressChart = null; // Instance chart dashboard
-        let timelineGanttChart = null; // Instance chart timeline
+        let timelineCalendar = null; // [DIUBAH] Mengganti timelineGanttChart
+        
+        // [BARU] Definisikan warna progress untuk kalender
+        const progressCalendarColors = {
+            "Direncanakan": { bg: '#e2e8f0', border: '#94a3b8' }, // slate-200, slate-400
+            "On Going":     { bg: '#dbeafe', border: '#3b82f6' }, // blue-100, blue-500
+            "On Review":    { bg: '#fef9c3', border: '#eab308' }, // yellow-100, yellow-500
+            "Done":         { bg: '#dcfce7', border: '#22c55e' }  // green-100, green-500
+        };
 
-        // Elemen DOM
+        // ... Elemen DOM (Login, App, Navigasi) ... tidak berubah
         const loader = document.getElementById('loader');
         const loginView = document.getElementById('login-view');
         const appView = document.getElementById('app-view');
@@ -486,22 +516,21 @@
         const userEmailDisplay = document.getElementById('user-email-display');
         const userAvatar = document.getElementById('user-avatar');
         
-        // Elemen DOM Dashboard
+        // ... Elemen DOM (Dashboard, To-Do) ... tidak berubah
         const recentUpdatesList = document.getElementById('recent-updates-list');
         const onlineUsersList = document.getElementById('online-users-list');
         const addLinkForm = document.getElementById('add-link-form');
         const linkNameInput = document.getElementById('link-name');
         const linkUrlInput = document.getElementById('link-url');
         const dashboardLinksList = document.getElementById('dashboard-links-list');
-        
-        // Elemen DOM To-Do
         const todoUserFilter = document.getElementById('todo-user-filter');
         const todoListBody = document.getElementById('todo-list-body');
         
-        // Elemen DOM Timeline
+        // [DIUBAH] Elemen DOM Timeline
         const timelineUserFilter = document.getElementById('timeline-user-filter');
+        const calendarEl = document.getElementById('timeline-calendar'); // [BARU]
 
-        // Elemen DOM Modal Tugas
+        // ... Elemen DOM (Modal Tugas, Modal Konfirmasi, Nav Mobile) ... tidak berubah
         const addTaskBtn = document.getElementById('add-task-btn');
         const taskModal = document.getElementById('task-modal');
         const closeTaskModalBtn = document.getElementById('close-task-modal-btn');
@@ -515,31 +544,23 @@
         const taskStartDateInput = document.getElementById('task-start-date');
         const taskDeadlineDateInput = document.getElementById('task-deadline-date');
         const taskLinkInput = document.getElementById('task-link');
-        
-        // Elemen DOM Navigasi Mobile
         const menuBtn = document.getElementById('menu-btn');
         const closeSidebarBtn = document.getElementById('close-sidebar-btn');
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebar-overlay');
-        
-        // [BARU] Elemen DOM Modal Konfirmasi
         const confirmModal = document.getElementById('confirm-modal');
         const confirmModalTitle = document.getElementById('confirm-modal-title');
         const confirmModalMessage = document.getElementById('confirm-modal-message');
         const confirmModalOkBtn = document.getElementById('confirm-modal-ok-btn');
         const confirmModalCancelBtn = document.getElementById('confirm-modal-cancel-btn');
-        
-        // Variabel untuk menyimpan callback konfirmasi
         let confirmCallback = null;
 
         // --- Fungsi Utilitas ---
-
+        // ... showLoader, hideLoader, showTaskModal, hideTaskModal ... tidak berubah
         function showLoader() { loader.classList.remove('hidden'); }
         function hideLoader() { loader.classList.add('hidden'); }
-
-        // Fungsi untuk menampilkan modal tugas
         function showTaskModal(task = null) {
-            taskForm.reset(); // Reset form
+            taskForm.reset(); 
             if (task) {
                 // Mode Edit
                 taskModalTitle.innerText = "Edit Tugas";
@@ -554,58 +575,46 @@
                 // Mode Tambah Baru
                 taskModalTitle.innerText = "Tambah Tugas Baru";
                 taskIdInput.value = "";
-                taskPicSelect.value = currentUser.name; // Default ke user yg login
+                taskPicSelect.value = currentUser.name; 
                 taskProgressSelect.value = "Direncanakan";
             }
             taskModal.classList.remove('hidden', 'opacity-0', 'scale-95');
         }
-
-        // Fungsi untuk menyembunyikan modal tugas
         function hideTaskModal() {
             taskModal.classList.add('opacity-0', 'scale-95');
             setTimeout(() => taskModal.classList.add('hidden'), 250);
         }
 
-        // [BARU] Fungsi untuk menampilkan modal konfirmasi
+        // ... Modal Konfirmasi ... tidak berubah
         function showConfirmationModal(title, message, onConfirm) {
             confirmModalTitle.innerText = title;
             confirmModalMessage.innerText = message;
-            confirmCallback = onConfirm; // Simpan callback
+            confirmCallback = onConfirm; 
             confirmModal.classList.remove('hidden', 'opacity-0', 'scale-95');
         }
-        
-        // [BARU] Fungsi untuk menyembunyikan modal konfirmasi
         function hideConfirmationModal() {
             confirmModal.classList.add('opacity-0', 'scale-95');
             setTimeout(() => confirmModal.classList.add('hidden'), 250);
-            confirmCallback = null; // Hapus callback
+            confirmCallback = null; 
         }
-        
-        // [BARU] Event listener untuk tombol modal konfirmasi
         confirmModalOkBtn.addEventListener('click', () => {
             if (typeof confirmCallback === 'function') {
-                confirmCallback(); // Jalankan callback
+                confirmCallback();
             }
             hideConfirmationModal();
         });
-        
         confirmModalCancelBtn.addEventListener('click', () => {
             hideConfirmationModal();
         });
 
-
-        // Fungsi navigasi halaman
+        // [DIUBAH] Fungsi navigasi halaman
         function navigateTo(pageId) {
-            // Sembunyikan semua halaman
             pages.forEach(page => page.classList.add('hidden'));
-            
-            // Tampilkan halaman yang dituju
             const targetPage = document.getElementById(pageId);
             if (targetPage) {
                 targetPage.classList.remove('hidden');
             }
             
-            // Update style link navigasi
             let pageTitleText = "Dashboard";
             navLinks.forEach(link => {
                 if (link.dataset.page === pageId) {
@@ -616,33 +625,35 @@
                 }
             });
             
-            // Update judul halaman
             pageTitle.innerText = pageTitleText;
             
-            // Sembunyikan sidebar di mobile setelah navigasi
+            // [BARU] Beri tahu FullCalendar untuk me-render ulang ukurannya 
+            // saat tab-nya menjadi terlihat.
+            if (pageId === 'timeline-page' && timelineCalendar) {
+                // Gunakan setTimeout agar render terjadi setelah div terlihat
+                setTimeout(() => {
+                    timelineCalendar.updateSize();
+                }, 0);
+            }
+            
             sidebar.classList.add('-translate-x-full');
             sidebarOverlay.classList.add('hidden');
         }
         
         // --- Fungsi Inisialisasi ---
         
-        // Mengisi dropdown filter dan PIC
+        // ... populateDropdowns ... tidak berubah
         function populateDropdowns() {
             const filters = [todoUserFilter, timelineUserFilter, taskPicSelect];
-            
             filters.forEach(select => {
                 if (!select) return;
-                select.innerHTML = ''; // Kosongkan dulu
-                
-                // Tambahkan opsi "Semua Anggota" untuk filter
+                select.innerHTML = '';
                 if (select.id.includes('filter')) {
                     const allOption = document.createElement('option');
                     allOption.value = 'Semua';
                     allOption.innerText = 'Semua Anggota';
                     select.appendChild(allOption);
                 }
-                
-                // Tambahkan nama tim
                 teamNames.forEach(name => {
                     const option = document.createElement('option');
                     option.value = name;
@@ -652,17 +663,55 @@
             });
         }
         
+        // [BARU] Fungsi untuk inisialisasi kalender
+        function initializeCalendar() {
+            // Hanya inisialisasi jika belum ada
+            if (timelineCalendar) return; 
+            
+            timelineCalendar = new FullCalendar.Calendar(calendarEl, {
+                locale: 'id', // Bahasa Indonesia
+                initialView: 'dayGridMonth', // Tampilan bulan
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,listWeek' // Opsi tampilan
+                },
+                height: 'auto', // Biarkan tingginya menyesuaikan
+                events: [], // Mulai dengan event kosong
+                
+                // [BARU] Aksi saat event (tugas) diklik
+                eventClick: async (clickInfo) => {
+                    const taskId = clickInfo.event.id;
+                    try {
+                        // Ambil data terbaru dari Firestore untuk diedit
+                        const taskRef = doc(db, "todos", taskId);
+                        const taskSnap = await getDoc(taskRef);
+                        if (taskSnap.exists()) {
+                            // Gunakan data lengkap dari Firestore
+                            showTaskModal({ id: taskSnap.id, ...taskSnap.data() });
+                        } else {
+                            // Fallback jika data tidak ada (seharusnya tidak terjadi)
+                            // Gunakan data dari 'extendedProps'
+                            console.warn("Task not found in Firestore, using cached event data.");
+                            showTaskModal(clickInfo.event.extendedProps.taskData);
+                        }
+                    } catch (error) {
+                        console.error("Error fetching task for edit:", error);
+                    }
+                }
+            });
+            
+            timelineCalendar.render();
+        }
+
         // --- Penangan Event (Event Handlers) ---
-        
-        // Event listener untuk navigasi
+        // ... loginForm, logoutButton, modal, nav mobile ... tidak berubah
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
                 navigateTo(link.dataset.page);
             });
         });
-
-        // Event listener untuk login
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = loginEmail.value;
@@ -672,10 +721,8 @@
             
             try {
                 await signInWithEmailAndPassword(auth, email, password);
-                // Status auth change akan menangani sisanya
             } catch (error) {
                 console.error("Login Gagal:", error);
-                // [UPDATE] Pesan error lebih spesifik
                 if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
                     loginError.innerText = "Email atau password salah. Pastikan akun sudah dibuat di Firebase Console.";
                 } else {
@@ -685,24 +732,16 @@
                 hideLoader();
             }
         });
-        
-        // Event listener untuk logout
         logoutButton.addEventListener('click', async () => {
             if (currentUser) {
-                // Set status offline sebelum logout
                 const userStatusRef = doc(db, "users_status", currentUser.uid);
                 await setDoc(userStatusRef, { online: false, last_seen: serverTimestamp() }, { merge: true });
             }
             await signOut(auth);
-            // Status auth change akan menangani sisanya
         });
-        
-        // Event listener untuk modal tugas
         addTaskBtn.addEventListener('click', () => showTaskModal(null));
         closeTaskModalBtn.addEventListener('click', hideTaskModal);
         cancelTaskBtn.addEventListener('click', hideTaskModal);
-        
-        // Event listener untuk navigasi mobile
         menuBtn.addEventListener('click', () => {
             sidebar.classList.remove('-translate-x-full');
             sidebarOverlay.classList.remove('hidden');
@@ -718,7 +757,7 @@
 
         // --- Fungsi Realtime Firebase (Listeners) ---
 
-        // Fungsi untuk mencatat update
+        // ... logUpdate, listenOnlineStatus, listenRecentUpdates, listenDashboardLinks ... tidak berubah
         async function logUpdate(message) {
             try {
                 await addDoc(collection(db, "updates"), {
@@ -730,8 +769,6 @@
                 console.error("Error logging update:", error);
             }
         }
-        
-        // Listener untuk status online
         function listenOnlineStatus() {
             const q = query(collection(db, "users_status"));
             const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -744,15 +781,12 @@
                 renderOnlineUsers(onlineUsers);
             }, (error) => {
                 console.error("Error listenOnlineStatus: ", error);
-                // Ini bisa terjadi jika rules belum di-publish
                 if(error.code === 'permission-denied') {
                     console.warn("Firestore permission denied. Pastikan security rules sudah di-publish.");
                 }
             });
-            unsubscribeListeners.push(unsubscribe); // Simpan untuk dilepas saat logout
+            unsubscribeListeners.push(unsubscribe); 
         }
-        
-        // Listener untuk update terbaru
         function listenRecentUpdates() {
             const q = query(collection(db, "updates"), orderBy("timestamp", "desc"), limit(10));
             const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -764,8 +798,6 @@
             }, (error) => console.error("Error listenRecentUpdates: ", error));
             unsubscribeListeners.push(unsubscribe);
         }
-        
-        // Listener untuk link dashboard
         function listenDashboardLinks() {
             const q = query(collection(db, "dashboard_links"), orderBy("createdAt", "desc"));
             const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -778,7 +810,7 @@
             unsubscribeListeners.push(unsubscribe);
         }
         
-        // Listener untuk semua tugas (To-Do, Timeline, Chart)
+        // [DIUBAH] Listener untuk semua tugas
         function listenAllTasks() {
             const q = query(collection(db, "todos"), orderBy("deadlineDate", "asc"));
             const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -789,24 +821,22 @@
                 
                 // Render semua yang bergantung pada data tugas
                 renderTodoList(allTasks);
-                renderTimelineChart(allTasks);
                 renderProjectProgressChart(allTasks);
+                
+                // [DIUBAH] Render kalender, bukan gantt chart
+                renderTimelineCalendar(allTasks); 
             }, (error) => console.error("Error listenAllTasks: ", error));
             unsubscribeListeners.push(unsubscribe);
         }
         
-        // Fungsi untuk memulai semua listener
+        // ... setupRealtimeListeners, detachRealtimeListeners ... tidak berubah
         function setupRealtimeListeners() {
-            // Pastikan listener lama bersih
             detachRealtimeListeners(); 
-            
             listenOnlineStatus();
             listenRecentUpdates();
             listenDashboardLinks();
             listenAllTasks();
         }
-        
-        // Fungsi untuk menghentikan semua listener (saat logout)
         function detachRealtimeListeners() {
             unsubscribeListeners.forEach(unsub => unsub());
             unsubscribeListeners = [];
@@ -814,14 +844,14 @@
 
         // --- Fungsi Render (Update UI) ---
 
-        // Render daftar anggota online
+        // ... renderOnlineUsers, renderRecentUpdates, renderDashboardLinks, renderTodoList, renderProjectProgressChart ... tidak berubah
+        // (Saya singkat agar tidak terlalu panjang, kodenya sama)
         function renderOnlineUsers(onlineUsers) {
             onlineUsersList.innerHTML = '';
             if (onlineUsers.length === 0) {
                 onlineUsersList.innerHTML = '<p class="text-slate-500 text-sm">Tidak ada anggota yang online.</p>';
                 return;
             }
-            
             onlineUsers.forEach(name => {
                 onlineUsersList.innerHTML += `
                     <div class="flex items-center space-x-3">
@@ -830,38 +860,30 @@
                             <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
                         </div>
                         <span class="font-medium text-slate-700">${name}</span>
-                    </div>
-                `;
+                    </div>`;
             });
         }
-        
-        // Render update terbaru
         function renderRecentUpdates(updates) {
             recentUpdatesList.innerHTML = '';
             if (updates.length === 0) {
                 recentUpdatesList.innerHTML = '<p class="text-slate-500 text-sm">Belum ada update.</p>';
                 return;
             }
-            
             updates.forEach(update => {
                 const time = update.timestamp ? new Date(update.timestamp.seconds * 1000).toLocaleString('id-ID', { hour12: false }) : 'Baru saja';
                 recentUpdatesList.innerHTML += `
                     <div class="border-b border-slate-100 pb-3 last:border-b-0 last:pb-0">
                         <p class="text-sm text-slate-700">${update.message}</p>
                         <p class="text-xs text-slate-500">Oleh <strong>${update.userName}</strong> - ${time}</p>
-                    </div>
-                `;
+                    </div>`;
             });
         }
-        
-        // Render link dashboard
         function renderDashboardLinks(links) {
             dashboardLinksList.innerHTML = '';
             if (links.length === 0) {
                 dashboardLinksList.innerHTML = '<li class="px-2 py-4 text-center text-slate-500 text-sm">Belum ada link yang ditambahkan.</li>';
                 return;
             }
-            
             links.forEach(link => {
                 dashboardLinksList.innerHTML += `
                     <li class="flex items-center justify-between py-3 px-2 rounded-lg hover:bg-slate-50">
@@ -870,50 +892,38 @@
                             <p class="text-xs text-slate-500">${link.url}</p>
                         </div>
                         <button data-id="${link.id}" class="delete-link-btn p-1 text-slate-400 hover:text-red-600 rounded-full">
-                            <!-- SVG Ikon Hapus (Inline) -->
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                         </button>
-                    </li>
-                `;
+                    </li>`;
             });
         }
-        
-        // Render daftar To-Do
         function renderTodoList(allTasks) {
             const selectedUser = todoUserFilter.value;
-            
             const filteredTasks = (selectedUser === 'Semua') 
                 ? allTasks 
                 : allTasks.filter(task => task.picName === selectedUser);
             
             todoListBody.innerHTML = '';
-            
             if (filteredTasks.length === 0) {
                 todoListBody.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center text-slate-500">Tidak ada tugas untuk ${selectedUser}.</td></tr>`;
                 return;
             }
-            
             const progressColors = {
                 "Direncanakan": "bg-slate-200 text-slate-700",
                 "On Going": "bg-blue-100 text-blue-700",
                 "On Review": "bg-yellow-100 text-yellow-700",
                 "Done": "bg-green-100 text-green-700"
             };
-
             filteredTasks.forEach(task => {
                 const progressClass = progressColors[task.progress] || "bg-slate-100";
                 const isLink = task.documentLink && (task.documentLink.startsWith('http') || task.documentLink.startsWith('www'));
-                
-                // [PERBAIKAN] Pastikan link yang tidak diawali http ditambahkan http://
                 let linkUrl = task.documentLink || '';
                 if(isLink && !linkUrl.startsWith('http')) {
                     linkUrl = 'https://' + linkUrl;
                 }
-
                 const linkHTML = isLink
                     ? `<a href="${linkUrl}" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:underline">Link Dokumen</a>`
                     : `<span class="text-slate-600">${task.documentLink || '-'}</span>`;
-
                 todoListBody.innerHTML += `
                     <tr class="hover:bg-slate-50">
                         <td class="px-6 py-4 text-sm font-medium text-slate-800">${task.taskName}</td>
@@ -928,57 +938,33 @@
                         <td class="px-6 py-4 text-sm max-w-xs truncate">${linkHTML}</td>
                         <td class="px-6 py-4 text-sm space-x-2">
                             <button data-id='${task.id}' class="edit-task-btn p-1 text-slate-500 hover:text-indigo-600">
-                                <!-- SVG Ikon Edit (Inline) -->
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.536L16.732 3.732z"></path></svg>
                             </button>
                             <button data-id='${task.id}' data-name='${task.taskName}' class="delete-task-btn p-1 text-slate-500 hover:text-red-600">
-                                <!-- SVG Ikon Hapus (Inline) -->
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                             </button>
                         </td>
-                    </tr>
-                `;
+                    </tr>`;
             });
         }
-
-        // Render Chart Progress di Dashboard
         function renderProjectProgressChart(allTasks) {
             const ctx = document.getElementById('project-progress-chart').getContext('2d');
-            
-            const counts = {
-                "Direncanakan": 0,
-                "On Going": 0,
-                "On Review": 0,
-                "Done": 0
-            };
-            
+            const counts = {"Direncanakan": 0, "On Going": 0, "On Review": 0, "Done": 0};
             allTasks.forEach(task => {
                 if (counts.hasOwnProperty(task.progress)) {
                     counts[task.progress]++;
                 }
             });
-            
             const data = {
                 labels: ['Direncanakan', 'On Going', 'On Review', 'Done'],
                 datasets: [{
                     label: 'Jumlah Tugas',
                     data: [counts['Direncanakan'], counts['On Going'], counts['On Review'], counts['Done']],
-                    backgroundColor: [
-                        '#e2e8f0', // slate-200
-                        '#93c5fd', // blue-300
-                        '#fde047', // yellow-300
-                        '#86efac'  // green-300
-                    ],
-                    borderColor: [
-                        '#94a3b8', // slate-400
-                        '#3b82f6', // blue-500
-                        '#eab308', // yellow-500
-                        '#22c55e'  // green-500
-                    ],
+                    backgroundColor: ['#e2e8f0', '#93c5fd', '#fde047', '#86efac'],
+                    borderColor: ['#94a3b8', '#3b82f6', '#eab308', '#22c55e'],
                     borderWidth: 1
                 }]
             };
-            
             if (projectProgressChart) {
                 projectProgressChart.data = data;
                 projectProgressChart.update();
@@ -990,20 +976,11 @@
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
-                            legend: {
-                                position: 'bottom',
-                            },
+                            legend: { position: 'bottom' },
                             tooltip: {
                                 callbacks: {
                                     label: function(context) {
-                                        let label = context.label || '';
-                                        if (label) {
-                                            label += ': ';
-                                        }
-                                        if (context.parsed !== null) {
-                                            label += context.parsed;
-                                        }
-                                        return label + ' tugas';
+                                        return (context.label || '') + ': ' + (context.parsed || 0) + ' tugas';
                                     }
                                 }
                             }
@@ -1013,111 +990,52 @@
             }
         }
         
-        // Render Chart Timeline (Gantt)
-        function renderTimelineChart(allTasks) {
+        // [DIHAPUS] Fungsi renderTimelineChart (Gantt)
+        
+        // [BARU] Render Kalender dengan data
+        function renderTimelineCalendar(allTasks) {
+            if (!timelineCalendar) return; // Jangan lakukan apa-apa jika kalender belum siap
+            
             const selectedUser = timelineUserFilter.value;
             
             const filteredTasks = (selectedUser === 'Semua')
                 ? allTasks
                 : allTasks.filter(task => task.picName === selectedUser);
-            
-            const ctx = document.getElementById('timeline-chart').getContext('2d');
-            
-            const data = {
-                labels: filteredTasks.map(task => task.taskName),
-                datasets: [{
-                    label: 'Timeline Tugas',
-                    data: filteredTasks.map(task => {
-                        // [PERBAIKAN] Pastikan tanggal valid
-                        const start = task.startDate ? new Date(task.startDate) : new Date();
-                        const end = task.deadlineDate ? new Date(task.deadlineDate) : new Date(start.getTime() + 86400000); // Tambah 1 hari jika deadline tdk ada
-                        return [start, end];
-                    }),
-                    backgroundColor: '#6366f1', // indigo-500
-                    borderColor: '#4338ca', // indigo-700
-                    borderWidth: 1,
-                    borderRadius: 4,
-                    borderSkipped: false,
-                }]
-            };
 
-            // [PERBAIKAN] Cari tanggal min dan max untuk skala
-            let minDate = new Date();
-            let maxDate = new Date();
-            if(filteredTasks.length > 0) {
-                const allDates = filteredTasks.flatMap(t => [new Date(t.startDate), new Date(t.deadlineDate)]);
-                minDate = new Date(Math.min.apply(null, allDates));
-                maxDate = new Date(Math.max.apply(null, allDates));
-            } else {
-                minDate.setMonth(minDate.getMonth() - 1); // 1 bulan lalu
-                maxDate.setMonth(maxDate.getMonth() + 1); // 1 bulan ke depan
-            }
-            
-            const options = {
-                indexAxis: 'y', // Ini yang membuatnya jadi horizontal bar chart (Gantt)
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        min: minDate.toISOString().split('T')[0], // Set skala min
-                        max: maxDate.toISOString().split('T')[0], // Set skala max
-                        type: 'time',
-                        time: {
-                            unit: 'month',
-                            tooltipFormat: 'dd MMM yyyy',
-                            displayFormats: {
-                                'month': 'MMM yyyy'
-                            }
-                        },
-                        title: {
-                            display: true,
-                            text: 'Tanggal'
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Tugas'
-                        }
+            // Ubah format data tugas menjadi format event FullCalendar
+            const calendarEvents = filteredTasks.map(task => {
+                const colors = progressCalendarColors[task.progress] || progressCalendarColors['Direncanakan'];
+                
+                // [PENTING] FullCalendar menganggap tanggal 'end' sebagai eksklusif.
+                // Jadi, kita harus menambahkan 1 hari ke deadline agar hari itu
+                // termasuk dalam visualisasi.
+                const endDate = new Date(task.deadlineDate);
+                endDate.setDate(endDate.getDate() + 1);
+                
+                return {
+                    id: task.id,
+                    title: task.taskName,
+                    start: task.startDate,
+                    end: endDate.toISOString().split('T')[0], // Format YYYY-MM-DD
+                    backgroundColor: colors.bg,
+                    borderColor: colors.border,
+                    textColor: '#1e293b', // slate-800
+                    extendedProps: {
+                        taskData: task // Simpan data asli tugas
                     }
-                },
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const task = filteredTasks[context.dataIndex];
-                                const start = new Date(task.startDate).toLocaleDateString('id-ID', {day: '2-digit', month: 'short', year: 'numeric'});
-                                const end = new Date(task.deadlineDate).toLocaleDateString('id-ID', {day: '2-digit', month: 'short', year: 'numeric'});
-                                return `${task.taskName}: ${start} - ${end}`;
-                            }
-                        }
-                    }
-                }
-            };
+                };
+            });
             
-            if (timelineGanttChart) {
-                timelineGanttChart.data = data;
-                timelineGanttChart.options = options;
-                timelineGanttChart.update();
-            } else {
-                timelineGanttChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: data,
-                    options: options
-                });
-            }
+            // Hapus event source lama dan tambahkan yang baru
+            timelineCalendar.getEventSources().forEach(source => source.remove());
+            timelineCalendar.addEventSource(calendarEvents);
         }
         
         // --- Fungsi CRUD (Create, Read, Update, Delete) ---
-
-        // Menangani form submit tugas (Tambah atau Edit)
+        // ... taskForm submit, addLinkForm submit, document.body.click ... tidak berubah
         taskForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const taskId = taskIdInput.value;
-            
             const taskData = {
                 taskName: taskNameInput.value,
                 picName: taskPicSelect.value,
@@ -1128,7 +1046,6 @@
                 updatedAt: serverTimestamp()
             };
             
-            // Validasi tanggal
             if (new Date(taskData.deadlineDate) < new Date(taskData.startDate)) {
                 alert("Tanggal Deadline tidak boleh sebelum Start Tanggal.");
                 return;
@@ -1136,12 +1053,10 @@
 
             try {
                 if (taskId) {
-                    // Mode Edit
                     const taskRef = doc(db, "todos", taskId);
                     await updateDoc(taskRef, taskData);
                     await logUpdate(`${currentUser.name} mengedit tugas: ${taskData.taskName}`);
                 } else {
-                    // Mode Tambah Baru
                     taskData.createdAt = serverTimestamp();
                     taskData.createdBy = currentUser.name;
                     await addDoc(collection(db, "todos"), taskData);
@@ -1154,12 +1069,10 @@
             }
         });
         
-        // Menangani form submit link dashboard
         addLinkForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const name = linkNameInput.value;
             const url = linkUrlInput.value;
-            
             try {
                 await addDoc(collection(db, "dashboard_links"), {
                     name: name,
@@ -1169,26 +1082,20 @@
                 });
                 await logUpdate(`${currentUser.name} menambah link baru: ${name}`);
                 addLinkForm.reset();
-            } catch (error)
-            {
+            } catch (error) {
                 console.error("Error adding link:", error);
             }
         });
         
-        // Menangani klik tombol (Edit/Delete) menggunakan event delegation
         document.body.addEventListener('click', async (e) => {
-            // Tombol Delete Tugas
             const deleteBtn = e.target.closest('.delete-task-btn');
             if (deleteBtn) {
                 const taskId = deleteBtn.dataset.id;
                 const taskName = deleteBtn.dataset.name || "tugas ini";
-                
-                // [GANTI confirm()] Tampilkan modal konfirmasi
                 showConfirmationModal(
                     "Hapus Tugas",
                     `Apakah Anda yakin ingin menghapus tugas: "${taskName}"?`,
                     async () => {
-                        // Ini adalah callback onConfirm
                         try {
                             await deleteDoc(doc(db, "todos", taskId));
                             await logUpdate(`${currentUser.name} menghapus tugas: ${taskName}`);
@@ -1199,7 +1106,6 @@
                 );
             }
             
-            // Tombol Edit Tugas
             const editBtn = e.target.closest('.edit-task-btn');
             if (editBtn) {
                 const taskId = editBtn.dataset.id;
@@ -1214,18 +1120,14 @@
                 }
             }
             
-            // Tombol Delete Link
             const deleteLinkBtn = e.target.closest('.delete-link-btn');
             if (deleteLinkBtn) {
                 const linkId = deleteLinkBtn.dataset.id;
                 const linkName = deleteLinkBtn.closest('li').querySelector('a').innerText || "link ini";
-                
-                // [GANTI confirm()] Tampilkan modal konfirmasi
                 showConfirmationModal(
                     "Hapus Link",
                     `Apakah Anda yakin ingin menghapus link: "${linkName}"?`,
                     async () => {
-                        // Ini adalah callback onConfirm
                         try {
                             await deleteDoc(doc(db, "dashboard_links", linkId));
                             await logUpdate(`${currentUser.name} menghapus link: ${linkName}`);
@@ -1237,19 +1139,20 @@
             }
         });
         
-        // Event listener untuk perubahan filter
+        // [DIUBAH] Event listener untuk perubahan filter
         todoUserFilter.addEventListener('change', () => {
-            // Saat filter berubah, panggil ulang listener utama
-            // Ini akan memfilter ulang data di semua tempat (list, chart, timeline)
+            // Kita panggil listener utama lagi untuk memfilter *semua*
+            // (list, chart, dan kalender)
             listenAllTasks(); 
         });
         timelineUserFilter.addEventListener('change', () => {
+            // Panggil listener utama untuk memfilter kalender
             listenAllTasks();
         });
 
         // --- Fungsi Utama Auth & Inisialisasi Aplikasi ---
         
-        // Fungsi ini dipanggil saat status auth berubah (login/logout)
+        // [DIUBAH] onAuthStateChanged
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 // User berhasil login
@@ -1260,7 +1163,6 @@
                     name: userName
                 };
                 
-                // Set status online di Firestore
                 const userStatusRef = doc(db, "users_status", user.uid);
                 setDoc(userStatusRef, {
                     name: userName,
@@ -1274,17 +1176,16 @@
                 userEmailDisplay.innerText = currentUser.email;
                 userAvatar.innerText = currentUser.name.substring(0, 2).toUpperCase();
                 
-                // Isi semua dropdown
                 populateDropdowns();
                 
-                // Set filter default ke nama user
+                // [BARU] Inisialisasi kalender SETELAH login
+                initializeCalendar(); 
+                
                 todoUserFilter.value = currentUser.name;
                 timelineUserFilter.value = currentUser.name;
                 
-                // Mulai mendengarkan data realtime
                 setupRealtimeListeners();
                 
-                // Tampilkan aplikasi
                 navigateTo('dashboard-page');
                 appView.classList.remove('hidden');
                 loginView.classList.add('hidden');
@@ -1292,26 +1193,24 @@
             } else {
                 // User logout
                 currentUser = null;
-                
-                // Hentikan semua listener
                 detachRealtimeListeners();
                 
-                // Tampilkan halaman login
+                // [BARU] Hapus kalender saat logout
+                if (timelineCalendar) {
+                    timelineCalendar.destroy();
+                    timelineCalendar = null;
+                }
+                
                 appView.classList.add('hidden');
                 loginView.classList.remove('hidden');
                 loginForm.reset();
             }
-            // Sembunyikan loader setelah proses auth selesai
             hideLoader();
         });
         
-        // Menangani jika user menutup tab/browser
+        // ... beforeunload ... tidak berubah
         window.addEventListener('beforeunload', () => {
             if (currentUser) {
-                // Set offline (Firebase akan menghapus ini jika koneksi terputus tiba-tiba,
-                // tapi ini bagus untuk penutupan normal)
-                // Note: Ini tidak selalu berhasil, tapi lebih baik daripada tidak sama sekali.
-                // Firebase Realtime Database 'onDisconnect' lebih reliable untuk ini.
                 const userStatusRef = doc(db, "users_status", currentUser.uid);
                 setDoc(userStatusRef, { online: false, last_seen: serverTimestamp() }, { merge: true });
             }
