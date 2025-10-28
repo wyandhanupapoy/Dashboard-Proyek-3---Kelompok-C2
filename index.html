@@ -1297,8 +1297,8 @@
 
         // Data stored in memory (simulating localStorage for sandbox compatibility)
         // Konfigurasi GitHub Gist
-        const GIST_ID = '36672ba5f6354a1787d4d902d6838a7b'; // Ganti dengan ID Gist Anda
-        const GITHUB_TOKEN = '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'; // Ganti dengan token GitHub Anda
+        const GIST_ID = '36672ba5f6354a1787d4d902d6838a7b';
+        const GITHUB_TOKEN = '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';
 
         let appData = {
             currentUser: null,
@@ -1578,7 +1578,7 @@
 
                 showToast('Welcome, ' + username + '!', 'success');
 
-                saveData();
+                saveToGist();
             }
         }
 
