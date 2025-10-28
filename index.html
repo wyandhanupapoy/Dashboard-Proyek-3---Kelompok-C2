@@ -298,8 +298,15 @@
         
         // Konfigurasi Firebase dari environment
         // !! PENTING: Gunakan __firebase_config yang disediakan oleh Canvas
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = {
+  apiKey: "AIzaSyBtpMYmcda23q5rTGcqZMFO57EcSLq9hCM",
+  authDomain: "dashboardproyek3c2.firebaseapp.com",
+  projectId: "dashboardproyek3c2",
+  storageBucket: "dashboardproyek3c2.firebasestorage.app",
+  messagingSenderId: "436435825783",
+  appId: "1:436435825783:web:0e401267d62220ef648272",
+  measurementId: "G-MBST0KEWEV"
+};
 
         // Inisialisasi Firebase
         let app, auth, db;
