@@ -1,0 +1,2205 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Proyek 3 - Kelompok C2</title>
+    
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Design System Variables */
+        :root {
+            --color-primary: #3498db;
+            --color-secondary: #2ecc71;
+            --color-danger: #e74c3c;
+            --color-warning: #f39c12;
+            --color-purple: #9b59b6;
+            --color-dark: #2c3e50;
+            --color-light: #ecf0f1;
+            --color-white: #ffffff;
+            --color-gray: #95a5a6;
+            --color-gray-light: #f8f9fa;
+            --color-gray-dark: #7f8c8d;
+            
+            --status-direncanakan: #3498db;
+            --status-ongoing: #f39c12;
+            --status-review: #9b59b6;
+            --status-done: #27ae60;
+            
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.12);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.15);
+            
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--color-dark);
+            line-height: 1.6;
+        }
+        
+        /* Login Page Styles */
+        .login-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .login-card {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            animation: fadeInUp 0.5s ease;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--color-dark);
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+        
+        .login-header p {
+            color: var(--color-gray-dark);
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--color-dark);
+            font-size: 14px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--color-light);
+            border-radius: var(--radius-md);
+            font-size: 15px;
+            font-family: inherit;
+            transition: var(--transition);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
+        }
+        
+        select.form-control {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%232c3e50' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 40px;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 15px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: var(--color-primary);
+            color: var(--color-white);
+            width: 100%;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .btn-secondary {
+            background: var(--color-light);
+            color: var(--color-dark);
+        }
+        
+        .btn-secondary:hover {
+            background: #d5dbdb;
+        }
+        
+        .btn-danger {
+            background: var(--color-danger);
+            color: var(--color-white);
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        .btn-success {
+            background: var(--color-secondary);
+            color: var(--color-white);
+        }
+        
+        .btn-success:hover {
+            background: #27ae60;
+        }
+        
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+        
+        /* App Container */
+        .app-container {
+            display: none;
+            min-height: 100vh;
+            background: var(--color-gray-light);
+        }
+        
+        .app-container.active {
+            display: block;
+        }
+        
+        /* Header */
+        .app-header {
+            background: var(--color-white);
+            box-shadow: var(--shadow-sm);
+            padding: 16px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .header-title h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--color-dark);
+            margin-bottom: 2px;
+        }
+        
+        .header-title p {
+            font-size: 13px;
+            color: var(--color-gray-dark);
+        }
+        
+        .header-user {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--color-gray-light);
+            border-radius: var(--radius-md);
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            color: var(--color-white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            color: var(--color-dark);
+            font-size: 14px;
+        }
+        
+        /* Navigation */
+        .app-nav {
+            background: var(--color-white);
+            box-shadow: var(--shadow-sm);
+            padding: 0 24px;
+        }
+        
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+        }
+        
+        .nav-item {
+            padding: 16px 24px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--color-gray-dark);
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+        
+        .nav-item:hover {
+            color: var(--color-primary);
+            background: var(--color-gray-light);
+        }
+        
+        .nav-item.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+        
+        /* Main Content */
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        .view {
+            display: none;
+        }
+        
+        .view.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        /* Dashboard View */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .card {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            padding: 24px;
+            transition: var(--transition);
+        }
+        
+        .card:hover {
+            box-shadow: var(--shadow-md);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--color-dark);
+        }
+        
+        .card-subtitle {
+            font-size: 14px;
+            color: var(--color-gray-dark);
+            margin-bottom: 16px;
+        }
+        
+        /* Last Update */
+        .last-update {
+            padding: 16px;
+            background: var(--color-gray-light);
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--color-primary);
+        }
+        
+        .update-text {
+            font-size: 14px;
+            color: var(--color-dark);
+            margin-bottom: 4px;
+        }
+        
+        .update-time {
+            font-size: 12px;
+            color: var(--color-gray-dark);
+        }
+        
+        /* Quick Access */
+        .quick-access-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        
+        .quick-access-card {
+            padding: 24px;
+            background: linear-gradient(135deg, var(--color-primary) 0%, #5dade2 100%);
+            border-radius: var(--radius-lg);
+            color: var(--color-white);
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+        }
+        
+        .quick-access-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .quick-access-card.secondary {
+            background: linear-gradient(135deg, var(--color-secondary) 0%, #58d68d 100%);
+        }
+        
+        .quick-access-card.tertiary {
+            background: linear-gradient(135deg, var(--color-warning) 0%, #f8c471 100%);
+        }
+        
+        .quick-access-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+        }
+        
+        .quick-access-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        /* Charts */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 16px;
+        }
+        
+        /* Online Members */
+        .member-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .member-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--color-gray-light);
+            border-radius: var(--radius-md);
+        }
+        
+        .member-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--color-gray);
+        }
+        
+        .member-status.online {
+            background: var(--color-secondary);
+            box-shadow: 0 0 8px rgba(46, 204, 113, 0.5);
+        }
+        
+        .member-name-text {
+            font-weight: 600;
+            color: var(--color-dark);
+            flex: 1;
+        }
+        
+        .member-status-text {
+            font-size: 12px;
+            color: var(--color-gray-dark);
+        }
+        
+        /* Custom Links Table */
+        .links-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+        
+        .links-table th {
+            text-align: left;
+            padding: 12px;
+            background: var(--color-gray-light);
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--color-dark);
+        }
+        
+        .links-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--color-light);
+            font-size: 14px;
+        }
+        
+        .links-table tr:hover {
+            background: var(--color-gray-light);
+        }
+        
+        .link-url {
+            color: var(--color-primary);
+            text-decoration: none;
+        }
+        
+        .link-url:hover {
+            text-decoration: underline;
+        }
+        
+        .table-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .add-link-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 12px;
+            margin-top: 16px;
+            padding: 16px;
+            background: var(--color-gray-light);
+            border-radius: var(--radius-md);
+        }
+        
+        /* Todo List */
+        .todo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .todo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        
+        .todo-card {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            padding: 20px;
+            transition: var(--transition);
+            border-left: 4px solid var(--color-primary);
+        }
+        
+        .todo-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+        
+        .todo-card.status-direncanakan {
+            border-left-color: var(--status-direncanakan);
+        }
+        
+        .todo-card.status-ongoing {
+            border-left-color: var(--status-ongoing);
+        }
+        
+        .todo-card.status-review {
+            border-left-color: var(--status-review);
+        }
+        
+        .todo-card.status-done {
+            border-left-color: var(--status-done);
+        }
+        
+        .todo-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--color-dark);
+            margin-bottom: 12px;
+        }
+        
+        .todo-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .todo-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--color-gray-dark);
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-primary {
+            background: rgba(52, 152, 219, 0.15);
+            color: var(--status-direncanakan);
+        }
+        
+        .badge-warning {
+            background: rgba(243, 156, 18, 0.15);
+            color: var(--status-ongoing);
+        }
+        
+        .badge-purple {
+            background: rgba(155, 89, 182, 0.15);
+            color: var(--status-review);
+        }
+        
+        .badge-success {
+            background: rgba(39, 174, 96, 0.15);
+            color: var(--status-done);
+        }
+        
+        .todo-description {
+            font-size: 14px;
+            color: var(--color-gray-dark);
+            margin-top: 12px;
+            line-height: 1.5;
+        }
+        
+        .todo-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        
+        /* Todo Form */
+        .todo-form {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+        
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        /* Timeline/Calendar */
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .calendar-nav {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .calendar-month {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--color-dark);
+            min-width: 200px;
+            text-align: center;
+        }
+        
+        .calendar-container {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+        
+        .calendar-day-header {
+            text-align: center;
+            padding: 12px;
+            font-weight: 600;
+            color: var(--color-gray-dark);
+            font-size: 14px;
+        }
+        
+        .calendar-day {
+            aspect-ratio: 1;
+            border: 2px solid var(--color-light);
+            border-radius: var(--radius-md);
+            padding: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            min-height: 80px;
+        }
+        
+        .calendar-day:hover {
+            border-color: var(--color-primary);
+            background: var(--color-gray-light);
+        }
+        
+        .calendar-day.today {
+            background: rgba(52, 152, 219, 0.1);
+            border-color: var(--color-primary);
+        }
+        
+        .calendar-day.other-month {
+            opacity: 0.3;
+        }
+        
+        .day-number {
+            font-weight: 600;
+            color: var(--color-dark);
+            font-size: 14px;
+        }
+        
+        .day-tasks {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            margin-top: 4px;
+        }
+        
+        .task-indicator {
+            height: 4px;
+            border-radius: 2px;
+            width: 100%;
+        }
+        
+        .month-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: var(--color-gray-dark);
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--color-white);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            padding: 24px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--color-dark);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--color-gray-dark);
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        
+        .modal-close:hover {
+            background: var(--color-light);
+        }
+        
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            background: var(--color-dark);
+            color: var(--color-white);
+            padding: 16px 24px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            z-index: 2000;
+            display: none;
+            animation: slideInRight 0.3s ease;
+        }
+        
+        .toast.active {
+            display: block;
+        }
+        
+        .toast.success {
+            background: var(--color-secondary);
+        }
+        
+        .toast.error {
+            background: var(--color-danger);
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--color-gray-dark);
+        }
+        
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        .empty-state-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--color-dark);
+        }
+        
+        .empty-state-text {
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .nav-content {
+                padding: 0;
+            }
+            
+            .nav-item {
+                padding: 16px;
+                font-size: 13px;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .todo-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .add-link-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .calendar-grid {
+                gap: 4px;
+            }
+            
+            .calendar-day {
+                min-height: 60px;
+                padding: 4px;
+            }
+            
+            .day-number {
+                font-size: 12px;
+            }
+            
+            .task-indicator {
+                height: 3px;
+            }
+            
+            .toast {
+                right: 16px;
+                left: 16px;
+            }
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>Dashboard Proyek 3</h1>
+                <p>Pengembangan Perangkat Lunak Berbasis Web - Kelompok C2</p>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="username">Pilih Username</label>
+                    <select id="username" class="form-control" required>
+                        <option value="">-- Pilih Anggota --</option>
+                        <option value="Dhanu">Dhanu</option>
+                        <option value="Hisyam">Hisyam</option>
+                        <option value="Dava">Dava</option>
+                        <option value="Nezya">Nezya</option>
+                        <option value="Andin">Andin</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- App Container -->
+    <div id="appContainer" class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-title">
+                    <h1>Dashboard Proyek 3 - Kelompok C2</h1>
+                    <p>Pengembangan Perangkat Lunak Berbasis Web</p>
+                </div>
+                <div class="header-user">
+                    <div class="user-info">
+                        <div class="user-avatar" id="userAvatar"></div>
+                        <span class="user-name" id="userName"></span>
+                    </div>
+                    <button class="btn btn-secondary btn-sm" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="app-nav">
+            <div class="nav-content">
+                <button class="nav-item active" data-view="dashboard">📊 Dashboard</button>
+                <button class="nav-item" data-view="todolist">✅ To-Do List</button>
+                <button class="nav-item" data-view="timeline">📅 Timeline</button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard View -->
+            <div id="dashboardView" class="view active">
+                <!-- Last Update -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">📢 Last Update</h2>
+                    </div>
+                    <div id="lastUpdateContent">
+                        <div class="last-update">
+                            <div class="update-text">Tidak ada aktivitas terbaru</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Access -->
+                <div class="card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <h2 class="card-title">⚡ Quick Access</h2>
+                    </div>
+                    <div class="quick-access-grid">
+                        <div class="quick-access-card" onclick="switchView('todolist')">
+                            <div class="quick-access-icon">✅</div>
+                            <div class="quick-access-title">To-Do List</div>
+                        </div>
+                        <div class="quick-access-card secondary" onclick="switchView('timeline')">
+                            <div class="quick-access-icon">📅</div>
+                            <div class="quick-access-title">Timeline</div>
+                        </div>
+                        <div class="quick-access-card tertiary" onclick="document.getElementById('customLinksCard').scrollIntoView({behavior: 'smooth'})">
+                            <div class="quick-access-icon">🔗</div>
+                            <div class="quick-access-title">Custom Links</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics Charts -->
+                <div class="dashboard-grid" style="margin-top: 24px;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">📊 Tasks per Member</h2>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="tasksPerMemberChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">📈 Task Status Distribution</h2>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="taskStatusChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">📉 Tasks Created (Last 7 Days)</h2>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="tasksOverTimeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Online Members & Custom Links -->
+                <div class="dashboard-grid" style="margin-top: 24px;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">👥 Online Members</h2>
+                        </div>
+                        <div id="onlineMembersList" class="member-list"></div>
+                    </div>
+                    <div class="card" id="customLinksCard" style="grid-column: 1 / -1;">
+                        <div class="card-header">
+                            <h2 class="card-title">🔗 Custom Links</h2>
+                        </div>
+                        <div class="add-link-form">
+                            <input type="text" id="newLinkName" class="form-control" placeholder="Nama Link">
+                            <input type="url" id="newLinkUrl" class="form-control" placeholder="URL Link">
+                            <button class="btn btn-success" onclick="addCustomLink()">+ Add Link</button>
+                        </div>
+                        <table class="links-table">
+                            <thead>
+                                <tr>
+                                    <th>Nama</th>
+                                    <th>Link</th>
+                                    <th style="width: 150px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customLinksTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- To-Do List View -->
+            <div id="todolistView" class="view">
+                <div class="todo-header">
+                    <div>
+                        <h1 id="todoViewTitle" class="card-title" style="font-size: 24px; margin-bottom: 8px;">All Members' To-Do List</h1>
+                        <p class="card-subtitle">Manage and track tasks for all team members</p>
+                    </div>
+                    <div class="filter-group">
+                        <label class="form-label" style="margin-bottom: 0;">Filter by:</label>
+                        <select id="memberFilter" class="form-control" style="width: 200px;" onchange="filterTodos()">
+                            <option value="all">All Members</option>
+                            <option value="Dhanu">Dhanu</option>
+                            <option value="Hisyam">Hisyam</option>
+                            <option value="Dava">Dava</option>
+                            <option value="Nezya">Nezya</option>
+                            <option value="Andin">Andin</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="showTodoForm()">+ Add New Task</button>
+                    </div>
+                </div>
+
+                <!-- Todo Form -->
+                <div id="todoForm" class="todo-form hidden">
+                    <h3 class="card-title" style="margin-bottom: 20px;" id="formTitle">Add New Task</h3>
+                    <form id="todoFormElement">
+                        <input type="hidden" id="todoId">
+                        <div class="form-group">
+                            <label class="form-label">Nama Tugas *</label>
+                            <input type="text" id="todoNamaTugas" class="form-control" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">PIC (Person in Charge) *</label>
+                                <select id="todoPIC" class="form-control" required>
+                                    <option value="Dhanu">Dhanu</option>
+                                    <option value="Hisyam">Hisyam</option>
+                                    <option value="Dava">Dava</option>
+                                    <option value="Nezya">Nezya</option>
+                                    <option value="Andin">Andin</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Progress *</label>
+                                <select id="todoProgress" class="form-control" required>
+                                    <option value="Direncanakan">Direncanakan</option>
+                                    <option value="On Going">On Going</option>
+                                    <option value="On Review">On Review</option>
+                                    <option value="Done">Done</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Start Date *</label>
+                                <input type="date" id="todoStartDate" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Deadline Date *</label>
+                                <input type="date" id="todoDeadlineDate" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Link Dokumen (Optional)</label>
+                            <input type="url" id="todoLinkDokumen" class="form-control" placeholder="https://">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Deskripsi (Optional)</label>
+                            <textarea id="todoDeskripsi" class="form-control" rows="4"></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="hideTodoForm()">Cancel</button>
+                            <button type="submit" class="btn btn-success" id="todoSubmitBtn">Save Task</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Todo Grid -->
+                <div id="todoGrid" class="todo-grid"></div>
+            </div>
+
+            <!-- Timeline View -->
+            <div id="timelineView" class="view">
+                <div class="timeline-header">
+                    <div>
+                        <h1 id="timelineViewTitle" class="card-title" style="font-size: 24px; margin-bottom: 8px;">All Members' Timeline</h1>
+                        <p class="card-subtitle">Calendar view of all tasks and deadlines</p>
+                    </div>
+                    <div class="filter-group">
+                        <label class="form-label" style="margin-bottom: 0;">Filter by:</label>
+                        <select id="timelineMemberFilter" class="form-control" style="width: 200px;" onchange="filterTimeline()">
+                            <option value="all">All Members</option>
+                            <option value="Dhanu">Dhanu</option>
+                            <option value="Hisyam">Hisyam</option>
+                            <option value="Dava">Dava</option>
+                            <option value="Nezya">Nezya</option>
+                            <option value="Andin">Andin</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Month Stats -->
+                <div class="month-stats" id="monthStats"></div>
+
+                <!-- Calendar -->
+                <div class="calendar-container">
+                    <div class="calendar-nav">
+                        <button class="btn btn-secondary btn-sm" onclick="previousMonth()">◀ Previous</button>
+                        <div class="calendar-month" id="calendarMonth"></div>
+                        <button class="btn btn-secondary btn-sm" onclick="nextMonth()">Next ▶</button>
+                    </div>
+                    <div style="margin-top: 24px;">
+                        <div class="calendar-grid">
+                            <div class="calendar-day-header">Sun</div>
+                            <div class="calendar-day-header">Mon</div>
+                            <div class="calendar-day-header">Tue</div>
+                            <div class="calendar-day-header">Wed</div>
+                            <div class="calendar-day-header">Thu</div>
+                            <div class="calendar-day-header">Fri</div>
+                            <div class="calendar-day-header">Sat</div>
+                        </div>
+                        <div class="calendar-grid" id="calendarGrid"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Day Tasks Modal -->
+    <div id="dayTasksModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Tasks for Day</h3>
+                <button class="modal-close" onclick="closeDayTasksModal()">×</button>
+            </div>
+            <div id="modalTasksList"></div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // Global variables
+        let currentUser = null;
+        let currentView = 'dashboard';
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        let editingTodoId = null;
+        let charts = {};
+        
+        // Members array
+        const members = ['Dhanu', 'Hisyam', 'Dava', 'Nezya', 'Andin'];
+        
+        // Data stored in memory (simulating localStorage for sandbox compatibility)
+        let appData = {
+            currentUser: null,
+            todos: [],
+            customLinks: [],
+            memberActivity: {},
+            activityLog: []
+        };
+        
+        // Initialize app
+        function initApp() {
+            // Initialize with sample data if empty
+            if (appData.todos.length === 0) {
+                appData.todos = [
+                    {
+                        id: generateId(),
+                        namaTugas: 'Desain Database',
+                        pic: 'Dhanu',
+                        startDate: '2025-10-20',
+                        deadlineDate: '2025-10-30',
+                        progress: 'Done',
+                        linkDokumen: '',
+                        deskripsi: 'Membuat ERD dan skema database',
+                        createdAt: new Date('2025-10-20').toISOString(),
+                        createdBy: 'Dhanu',
+                        updatedAt: new Date('2025-10-30').toISOString(),
+                        updatedBy: 'Dhanu'
+                    },
+                    {
+                        id: generateId(),
+                        namaTugas: 'Implementasi Login',
+                        pic: 'Hisyam',
+                        startDate: '2025-10-25',
+                        deadlineDate: '2025-11-05',
+                        progress: 'On Review',
+                        linkDokumen: 'https://github.com/example/login',
+                        deskripsi: '',
+                        createdAt: new Date('2025-10-25').toISOString(),
+                        createdBy: 'Hisyam',
+                        updatedAt: new Date('2025-10-27').toISOString(),
+                        updatedBy: 'Hisyam'
+                    },
+                    {
+                        id: generateId(),
+                        namaTugas: 'Testing Dashboard',
+                        pic: 'Dava',
+                        startDate: '2025-10-28',
+                        deadlineDate: '2025-11-10',
+                        progress: 'On Going',
+                        linkDokumen: '',
+                        deskripsi: 'Testing semua fitur dashboard',
+                        createdAt: new Date('2025-10-28').toISOString(),
+                        createdBy: 'Dava',
+                        updatedAt: new Date('2025-10-28').toISOString(),
+                        updatedBy: 'Dava'
+                    }
+                ];
+            }
+            
+            if (appData.customLinks.length === 0) {
+                appData.customLinks = [
+                    { id: generateId(), nama: 'GitHub Repository', link: 'https://github.com/kelompok-c2/proyek3' },
+                    { id: generateId(), nama: 'Google Drive', link: 'https://drive.google.com/drive/folders/example' },
+                    { id: generateId(), nama: 'Trello Board', link: 'https://trello.com/b/example' }
+                ];
+            }
+            
+            // Setup login form
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            
+            // Setup navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const view = item.dataset.view;
+                    switchView(view);
+                });
+            });
+            
+            // Setup todo form
+            document.getElementById('todoFormElement').addEventListener('submit', handleTodoSubmit);
+            
+            // Set default date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('todoStartDate').value = today;
+        }
+        
+        // Generate unique ID
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+        
+        // Handle login
+        function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            
+            if (username) {
+                currentUser = username;
+                appData.currentUser = username;
+                updateMemberActivity(username);
+                
+                // Show app, hide login
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('appContainer').classList.add('active');
+                
+                // Update user info
+                document.getElementById('userAvatar').textContent = username.charAt(0).toUpperCase();
+                document.getElementById('userName').textContent = username;
+                
+                // Set PIC to current user
+                document.getElementById('todoPIC').value = username;
+                
+                // Load dashboard
+                loadDashboard();
+                
+                showToast('Welcome, ' + username + '!', 'success');
+            }
+        }
+        
+        // Logout
+        function logout() {
+            currentUser = null;
+            appData.currentUser = null;
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('appContainer').classList.remove('active');
+            document.getElementById('loginForm').reset();
+            showToast('Logged out successfully', 'success');
+        }
+        
+        // Update member activity
+        function updateMemberActivity(username) {
+            appData.memberActivity[username] = Date.now();
+        }
+        
+        // Check if member is online (active in last 5 minutes)
+        function isMemberOnline(username) {
+            const lastActivity = appData.memberActivity[username];
+            if (!lastActivity) return false;
+            const fiveMinutes = 5 * 60 * 1000;
+            return (Date.now() - lastActivity) < fiveMinutes;
+        }
+        
+        // Log activity
+        function logActivity(text) {
+            appData.activityLog.unshift({
+                text: text,
+                timestamp: Date.now(),
+                user: currentUser
+            });
+            // Keep only last 10 activities
+            appData.activityLog = appData.activityLog.slice(0, 10);
+        }
+        
+        // Switch view
+        function switchView(viewName) {
+            currentView = viewName;
+            
+            // Update navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.view === viewName) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Update views
+            document.querySelectorAll('.view').forEach(view => {
+                view.classList.remove('active');
+            });
+            document.getElementById(viewName + 'View').classList.add('active');
+            
+            // Load view data
+            if (viewName === 'dashboard') {
+                loadDashboard();
+            } else if (viewName === 'todolist') {
+                loadTodoList();
+            } else if (viewName === 'timeline') {
+                loadTimeline();
+            }
+            
+            updateMemberActivity(currentUser);
+        }
+        
+        // Load Dashboard
+        function loadDashboard() {
+            loadLastUpdate();
+            loadOnlineMembers();
+            loadCustomLinks();
+            loadCharts();
+        }
+        
+        // Load last update
+        function loadLastUpdate() {
+            const container = document.getElementById('lastUpdateContent');
+            if (appData.activityLog.length === 0) {
+                container.innerHTML = `
+                    <div class="last-update">
+                        <div class="update-text">Tidak ada aktivitas terbaru</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            const latest = appData.activityLog[0];
+            const timeAgo = getTimeAgo(latest.timestamp);
+            
+            container.innerHTML = `
+                <div class="last-update">
+                    <div class="update-text">${latest.text}</div>
+                    <div class="update-time">${timeAgo}</div>
+                </div>
+            `;
+        }
+        
+        // Get time ago
+        function getTimeAgo(timestamp) {
+            const now = Date.now();
+            const diff = now - timestamp;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+            
+            if (minutes < 1) return 'Just now';
+            if (minutes < 60) return minutes + ' minute' + (minutes > 1 ? 's' : '') + ' ago';
+            if (hours < 24) return hours + ' hour' + (hours > 1 ? 's' : '') + ' ago';
+            return days + ' day' + (days > 1 ? 's' : '') + ' ago';
+        }
+        
+        // Load online members
+        function loadOnlineMembers() {
+            const container = document.getElementById('onlineMembersList');
+            let html = '';
+            
+            members.forEach(member => {
+                const isOnline = isMemberOnline(member);
+                html += `
+                    <div class="member-item">
+                        <div class="member-status ${isOnline ? 'online' : ''}"></div>
+                        <span class="member-name-text">${member}</span>
+                        <span class="member-status-text">${isOnline ? 'Online' : 'Offline'}</span>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // Load custom links
+        function loadCustomLinks() {
+            const tbody = document.getElementById('customLinksTable');
+            let html = '';
+            
+            appData.customLinks.forEach(link => {
+                html += `
+                    <tr>
+                        <td>${link.nama}</td>
+                        <td><a href="${link.link}" target="_blank" class="link-url">${link.link}</a></td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="btn btn-secondary btn-sm" onclick="editCustomLink('${link.id}')">Edit</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteCustomLink('${link.id}')">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            if (appData.customLinks.length === 0) {
+                html = '<tr><td colspan="3" style="text-align: center; padding: 40px; color: var(--color-gray-dark);">No custom links yet. Add your first link above!</td></tr>';
+            }
+            
+            tbody.innerHTML = html;
+        }
+        
+        // Add custom link
+        function addCustomLink() {
+            const nama = document.getElementById('newLinkName').value.trim();
+            const link = document.getElementById('newLinkUrl').value.trim();
+            
+            if (!nama || !link) {
+                showToast('Please fill in both fields', 'error');
+                return;
+            }
+            
+            appData.customLinks.push({
+                id: generateId(),
+                nama: nama,
+                link: link
+            });
+            
+            logActivity(`${currentUser} added link '${nama}'`);
+            
+            document.getElementById('newLinkName').value = '';
+            document.getElementById('newLinkUrl').value = '';
+            
+            loadCustomLinks();
+            showToast('Link added successfully', 'success');
+        }
+        
+        // Edit custom link
+        function editCustomLink(id) {
+            const link = appData.customLinks.find(l => l.id === id);
+            if (!link) return;
+            
+            const newNama = prompt('Edit Nama:', link.nama);
+            if (newNama === null) return;
+            
+            const newLink = prompt('Edit Link:', link.link);
+            if (newLink === null) return;
+            
+            link.nama = newNama.trim();
+            link.link = newLink.trim();
+            
+            loadCustomLinks();
+            showToast('Link updated successfully', 'success');
+        }
+        
+        // Delete custom link
+        function deleteCustomLink(id) {
+            if (!confirm('Are you sure you want to delete this link?')) return;
+            
+            appData.customLinks = appData.customLinks.filter(l => l.id !== id);
+            loadCustomLinks();
+            showToast('Link deleted successfully', 'success');
+        }
+        
+        // Load charts
+        function loadCharts() {
+            setTimeout(() => {
+                loadTasksPerMemberChart();
+                loadTaskStatusChart();
+                loadTasksOverTimeChart();
+            }, 100);
+        }
+        
+        // Tasks per member chart
+        function loadTasksPerMemberChart() {
+            const ctx = document.getElementById('tasksPerMemberChart');
+            if (!ctx) return;
+            
+            // Destroy existing chart
+            if (charts.tasksPerMember) {
+                charts.tasksPerMember.destroy();
+            }
+            
+            // Count tasks per member
+            const taskCounts = {};
+            members.forEach(member => taskCounts[member] = 0);
+            appData.todos.forEach(todo => {
+                if (taskCounts[todo.pic] !== undefined) {
+                    taskCounts[todo.pic]++;
+                }
+            });
+            
+            charts.tasksPerMember = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: members,
+                    datasets: [{
+                        label: 'Number of Tasks',
+                        data: members.map(m => taskCounts[m]),
+                        backgroundColor: ['#1FB8CD', '#FFC185', '#B4413C', '#ECEBD5', '#5D878F'],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Task status chart
+        function loadTaskStatusChart() {
+            const ctx = document.getElementById('taskStatusChart');
+            if (!ctx) return;
+            
+            if (charts.taskStatus) {
+                charts.taskStatus.destroy();
+            }
+            
+            const statuses = ['Direncanakan', 'On Going', 'On Review', 'Done'];
+            const statusCounts = {};
+            statuses.forEach(status => statusCounts[status] = 0);
+            appData.todos.forEach(todo => {
+                if (statusCounts[todo.progress] !== undefined) {
+                    statusCounts[todo.progress]++;
+                }
+            });
+            
+            charts.taskStatus = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: statuses,
+                    datasets: [{
+                        data: statuses.map(s => statusCounts[s]),
+                        backgroundColor: ['#3498db', '#f39c12', '#9b59b6', '#27ae60']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Tasks over time chart
+        function loadTasksOverTimeChart() {
+            const ctx = document.getElementById('tasksOverTimeChart');
+            if (!ctx) return;
+            
+            if (charts.tasksOverTime) {
+                charts.tasksOverTime.destroy();
+            }
+            
+            // Get last 7 days
+            const days = [];
+            const counts = [];
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                days.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+                
+                const count = appData.todos.filter(todo => {
+                    return todo.createdAt && todo.createdAt.split('T')[0] === dateStr;
+                }).length;
+                counts.push(count);
+            }
+            
+            charts.tasksOverTime = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: days,
+                    datasets: [{
+                        label: 'Tasks Created',
+                        data: counts,
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Load To-Do List
+        function loadTodoList() {
+            const filter = document.getElementById('memberFilter').value;
+            filterTodos();
+        }
+        
+        // Filter todos
+        function filterTodos() {
+            const filter = document.getElementById('memberFilter').value;
+            let todos = appData.todos;
+            
+            if (filter !== 'all') {
+                todos = todos.filter(t => t.pic === filter);
+                document.getElementById('todoViewTitle').textContent = filter + "'s To-Do List";
+            } else {
+                document.getElementById('todoViewTitle').textContent = "All Members' To-Do List";
+            }
+            
+            renderTodos(todos);
+        }
+        
+        // Render todos
+        function renderTodos(todos) {
+            const grid = document.getElementById('todoGrid');
+            
+            if (todos.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <div class="empty-state-icon">📝</div>
+                        <div class="empty-state-title">No tasks yet</div>
+                        <div class="empty-state-text">Create your first task to get started!</div>
+                        <button class="btn btn-primary" onclick="showTodoForm()">+ Add New Task</button>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            todos.forEach(todo => {
+                const statusClass = getStatusClass(todo.progress);
+                const badgeClass = getStatusBadgeClass(todo.progress);
+                
+                html += `
+                    <div class="todo-card ${statusClass}">
+                        <div class="todo-title">${todo.namaTugas}</div>
+                        <div class="todo-meta">
+                            <div class="todo-meta-item">
+                                <span>👤</span>
+                                <span><strong>PIC:</strong> ${todo.pic}</span>
+                            </div>
+                            <div class="todo-meta-item">
+                                <span>📅</span>
+                                <span><strong>Start:</strong> ${formatDate(todo.startDate)}</span>
+                            </div>
+                            <div class="todo-meta-item">
+                                <span>⏰</span>
+                                <span><strong>Deadline:</strong> ${formatDate(todo.deadlineDate)}</span>
+                            </div>
+                            <div class="todo-meta-item">
+                                <span class="badge ${badgeClass}">${todo.progress}</span>
+                            </div>
+                        </div>
+                        ${todo.linkDokumen ? `<div class="todo-meta-item" style="margin-top: 8px;"><span>🔗</span><a href="${todo.linkDokumen}" target="_blank" class="link-url">View Document</a></div>` : ''}
+                        ${todo.deskripsi ? `<div class="todo-description">${todo.deskripsi}</div>` : ''}
+                        <div class="todo-actions">
+                            <button class="btn btn-secondary btn-sm" onclick="editTodo('${todo.id}')">Edit</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteTodo('${todo.id}')">Delete</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            grid.innerHTML = html;
+        }
+        
+        // Get status class
+        function getStatusClass(progress) {
+            const map = {
+                'Direncanakan': 'status-direncanakan',
+                'On Going': 'status-ongoing',
+                'On Review': 'status-review',
+                'Done': 'status-done'
+            };
+            return map[progress] || '';
+        }
+        
+        // Get status badge class
+        function getStatusBadgeClass(progress) {
+            const map = {
+                'Direncanakan': 'badge-primary',
+                'On Going': 'badge-warning',
+                'On Review': 'badge-purple',
+                'Done': 'badge-success'
+            };
+            return map[progress] || 'badge-primary';
+        }
+        
+        // Format date
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+        
+        // Show todo form
+        function showTodoForm() {
+            document.getElementById('todoForm').classList.remove('hidden');
+            document.getElementById('formTitle').textContent = 'Add New Task';
+            document.getElementById('todoSubmitBtn').textContent = 'Save Task';
+            document.getElementById('todoFormElement').reset();
+            document.getElementById('todoId').value = '';
+            document.getElementById('todoPIC').value = currentUser;
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('todoStartDate').value = today;
+            editingTodoId = null;
+            document.getElementById('todoForm').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Hide todo form
+        function hideTodoForm() {
+            document.getElementById('todoForm').classList.add('hidden');
+            document.getElementById('todoFormElement').reset();
+            editingTodoId = null;
+        }
+        
+        // Handle todo submit
+        function handleTodoSubmit(e) {
+            e.preventDefault();
+            
+            const todoData = {
+                namaTugas: document.getElementById('todoNamaTugas').value.trim(),
+                pic: document.getElementById('todoPIC').value,
+                startDate: document.getElementById('todoStartDate').value,
+                deadlineDate: document.getElementById('todoDeadlineDate').value,
+                progress: document.getElementById('todoProgress').value,
+                linkDokumen: document.getElementById('todoLinkDokumen').value.trim(),
+                deskripsi: document.getElementById('todoDeskripsi').value.trim()
+            };
+            
+            if (editingTodoId) {
+                // Update existing todo
+                const todo = appData.todos.find(t => t.id === editingTodoId);
+                if (todo) {
+                    Object.assign(todo, todoData);
+                    todo.updatedAt = new Date().toISOString();
+                    todo.updatedBy = currentUser;
+                    logActivity(`${currentUser} updated task '${todoData.namaTugas}'`);
+                    showToast('Task updated successfully', 'success');
+                }
+            } else {
+                // Create new todo
+                const newTodo = {
+                    id: generateId(),
+                    ...todoData,
+                    createdAt: new Date().toISOString(),
+                    createdBy: currentUser,
+                    updatedAt: new Date().toISOString(),
+                    updatedBy: currentUser
+                };
+                appData.todos.push(newTodo);
+                logActivity(`${currentUser} created task '${todoData.namaTugas}'`);
+                showToast('Task created successfully', 'success');
+            }
+            
+            hideTodoForm();
+            filterTodos();
+        }
+        
+        // Edit todo
+        function editTodo(id) {
+            const todo = appData.todos.find(t => t.id === id);
+            if (!todo) return;
+            
+            editingTodoId = id;
+            document.getElementById('todoId').value = id;
+            document.getElementById('todoNamaTugas').value = todo.namaTugas;
+            document.getElementById('todoPIC').value = todo.pic;
+            document.getElementById('todoStartDate').value = todo.startDate;
+            document.getElementById('todoDeadlineDate').value = todo.deadlineDate;
+            document.getElementById('todoProgress').value = todo.progress;
+            document.getElementById('todoLinkDokumen').value = todo.linkDokumen || '';
+            document.getElementById('todoDeskripsi').value = todo.deskripsi || '';
+            
+            document.getElementById('formTitle').textContent = 'Edit Task';
+            document.getElementById('todoSubmitBtn').textContent = 'Update Task';
+            document.getElementById('todoForm').classList.remove('hidden');
+            document.getElementById('todoForm').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Delete todo
+        function deleteTodo(id) {
+            if (!confirm('Are you sure you want to delete this task?')) return;
+            
+            appData.todos = appData.todos.filter(t => t.id !== id);
+            logActivity(`${currentUser} deleted a task`);
+            showToast('Task deleted successfully', 'success');
+            filterTodos();
+        }
+        
+        // Load Timeline
+        function loadTimeline() {
+            renderCalendar();
+            filterTimeline();
+        }
+        
+        // Filter timeline
+        function filterTimeline() {
+            const filter = document.getElementById('timelineMemberFilter').value;
+            
+            if (filter !== 'all') {
+                document.getElementById('timelineViewTitle').textContent = filter + "'s Timeline";
+            } else {
+                document.getElementById('timelineViewTitle').textContent = "All Members' Timeline";
+            }
+            
+            renderCalendar();
+            renderMonthStats();
+        }
+        
+        // Render calendar
+        function renderCalendar() {
+            const filter = document.getElementById('timelineMemberFilter').value;
+            let todos = appData.todos;
+            if (filter !== 'all') {
+                todos = todos.filter(t => t.pic === filter);
+            }
+            
+            // Update month display
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            document.getElementById('calendarMonth').textContent = monthNames[currentMonth] + ' ' + currentYear;
+            
+            const firstDay = new Date(currentYear, currentMonth, 1);
+            const lastDay = new Date(currentYear, currentMonth + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startingDayOfWeek = firstDay.getDay();
+            
+            const grid = document.getElementById('calendarGrid');
+            let html = '';
+            
+            // Previous month days
+            const prevMonthLastDay = new Date(currentYear, currentMonth, 0).getDate();
+            for (let i = startingDayOfWeek - 1; i >= 0; i--) {
+                const day = prevMonthLastDay - i;
+                html += `<div class="calendar-day other-month"><div class="day-number">${day}</div></div>`;
+            }
+            
+            // Current month days
+            const today = new Date();
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const isToday = today.getDate() === day && today.getMonth() === currentMonth && today.getFullYear() === currentYear;
+                
+                // Get tasks for this day
+                const dayTodos = todos.filter(t => t.deadlineDate === dateStr);
+                
+                let tasksHtml = '';
+                dayTodos.slice(0, 3).forEach(todo => {
+                    const color = getStatusColor(todo.progress);
+                    tasksHtml += `<div class="task-indicator" style="background: ${color};"></div>`;
+                });
+                
+                html += `
+                    <div class="calendar-day ${isToday ? 'today' : ''}" onclick="showDayTasks('${dateStr}')">
+                        <div class="day-number">${day}</div>
+                        <div class="day-tasks">${tasksHtml}</div>
+                    </div>
+                `;
+            }
+            
+            // Next month days
+            const remainingDays = 42 - (startingDayOfWeek + daysInMonth);
+            for (let day = 1; day <= remainingDays; day++) {
+                html += `<div class="calendar-day other-month"><div class="day-number">${day}</div></div>`;
+            }
+            
+            grid.innerHTML = html;
+        }
+        
+        // Get status color
+        function getStatusColor(progress) {
+            const map = {
+                'Direncanakan': '#3498db',
+                'On Going': '#f39c12',
+                'On Review': '#9b59b6',
+                'Done': '#27ae60'
+            };
+            return map[progress] || '#95a5a6';
+        }
+        
+        // Show day tasks
+        function showDayTasks(dateStr) {
+            const filter = document.getElementById('timelineMemberFilter').value;
+            let todos = appData.todos.filter(t => t.deadlineDate === dateStr);
+            if (filter !== 'all') {
+                todos = todos.filter(t => t.pic === filter);
+            }
+            
+            const modal = document.getElementById('dayTasksModal');
+            const title = document.getElementById('modalTitle');
+            const list = document.getElementById('modalTasksList');
+            
+            const date = new Date(dateStr);
+            title.textContent = 'Tasks for ' + date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            
+            if (todos.length === 0) {
+                list.innerHTML = '<div class="empty-state"><div class="empty-state-text">No tasks for this day</div></div>';
+            } else {
+                let html = '<div style="display: flex; flex-direction: column; gap: 12px;">';
+                todos.forEach(todo => {
+                    const badgeClass = getStatusBadgeClass(todo.progress);
+                    html += `
+                        <div style="padding: 16px; background: var(--color-gray-light); border-radius: var(--radius-md); border-left: 4px solid ${getStatusColor(todo.progress)};">
+                            <div style="font-weight: 600; margin-bottom: 8px;">${todo.namaTugas}</div>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap; font-size: 13px;">
+                                <span><strong>PIC:</strong> ${todo.pic}</span>
+                                <span class="badge ${badgeClass}">${todo.progress}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                list.innerHTML = html;
+            }
+            
+            modal.classList.add('active');
+        }
+        
+        // Close day tasks modal
+        function closeDayTasksModal() {
+            document.getElementById('dayTasksModal').classList.remove('active');
+        }
+        
+        // Previous month
+        function previousMonth() {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            renderCalendar();
+            renderMonthStats();
+        }
+        
+        // Next month
+        function nextMonth() {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar();
+            renderMonthStats();
+        }
+        
+        // Render month stats
+        function renderMonthStats() {
+            const filter = document.getElementById('timelineMemberFilter').value;
+            let todos = appData.todos;
+            if (filter !== 'all') {
+                todos = todos.filter(t => t.pic === filter);
+            }
+            
+            // Filter todos for current month
+            const monthTodos = todos.filter(t => {
+                const date = new Date(t.deadlineDate);
+                return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+            });
+            
+            // Count by status
+            const statusCounts = {
+                'Direncanakan': 0,
+                'On Going': 0,
+                'On Review': 0,
+                'Done': 0
+            };
+            monthTodos.forEach(t => {
+                if (statusCounts[t.progress] !== undefined) {
+                    statusCounts[t.progress]++;
+                }
+            });
+            
+            const container = document.getElementById('monthStats');
+            let html = `
+                <div class="stat-card">
+                    <div class="stat-value">${monthTodos.length}</div>
+                    <div class="stat-label">Total Tasks</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" style="color: #3498db;">${statusCounts['Direncanakan']}</div>
+                    <div class="stat-label">Direncanakan</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" style="color: #f39c12;">${statusCounts['On Going']}</div>
+                    <div class="stat-label">On Going</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" style="color: #9b59b6;">${statusCounts['On Review']}</div>
+                    <div class="stat-label">On Review</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" style="color: #27ae60;">${statusCounts['Done']}</div>
+                    <div class="stat-label">Done</div>
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+        
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type + ' active';
+            
+            setTimeout(() => {
+                toast.classList.remove('active');
+            }, 3000);
+        }
+        
+        // Close modal on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeDayTasksModal();
+            }
+        });
+        
+        // Close modal on outside click
+        document.getElementById('dayTasksModal').addEventListener('click', (e) => {
+            if (e.target.id === 'dayTasksModal') {
+                closeDayTasksModal();
+            }
+        });
+        
+        // Initialize app on load
+        initApp();
+    </script>
+</body>
+</html>
