@@ -60,24 +60,23 @@
     <div id="login-view" class="min-h-screen flex items-center justify-center p-4">
         <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-sm">
             <h2 class="text-3xl font-bold text-center text-gray-800 mb-2">Dasbor Proyek C2</h2>
-            <p class="text-center text-gray-500 mb-6">Silakan pilih nama Anda untuk masuk.</p>
+            <p class="text-center text-gray-500 mb-6">Silakan masuk dengan akun Anda.</p>
             
-            <div class="space-y-4">
+            <form id="login-form" class="space-y-4">
                 <div>
-                    <label for="username-select" class="block text-sm font-medium text-gray-700">Nama Anggota</label>
-                    <select id="username-select" class="mt-1 block w-full py-3 px-4 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg">
-                        <option value="Dhanu">Dhanu</option>
-                        <option value="Hisyam">Hisyam</option>
-                        <option value="Dava">Dava</option>
-                        <option value="Nezya">Nezya</option>
-                        <option value="Andin">Andin</option>
-                    </select>
+                    <label for="login-email" class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" id="login-email" placeholder="contoh@dashboardc2.com" class="mt-1 block w-full py-3 px-4 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg" required>
+                </div>
+                 <div>
+                    <label for="login-password" class="block text-sm font-medium text-gray-700">Password</Tlabel>
+                    <input type="password" id="login-password" placeholder="••••••••" class="mt-1 block w-full py-3 px-4 border border-gray-300 bg-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg" required>
                 </div>
                 
-                <button id="login-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-1">
+                <button id="login-button" type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-1">
                     Masuk
                 </button>
-            </div>
+                <p id="login-error" class="text-red-500 text-sm text-center h-4"></p> <!-- Penampung error -->
+            </form>
         </div>
     </div>
 
@@ -278,7 +277,9 @@
             getAuth, 
             signInAnonymously, 
             signInWithCustomToken, 
-            onAuthStateChanged 
+            onAuthStateChanged,
+            signInWithEmailAndPassword, // <-- TAMBAHKAN INI
+            signOut // <-- TAMBAHKAN INI
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { 
             getFirestore, 
@@ -303,7 +304,7 @@
           projectId: "dashboardproyek3c2",
           storageBucket: "dashboardproyek3c2.firebasestorage.app",
           messagingSenderId: "436435825783",
-          appId: "1:436435825783:web:0e401267d62220ef648272",
+          appId: "1:436435823:web:0e401267d62220ef648272",
           measurementId: "G-MBST0KEWEV"
         };
         
@@ -312,12 +313,26 @@
 
         // Inisialisasi Firebase
         let app, auth, db;
-        try {
+        let presenceCollection, updatesCollection, linksCollection, todosCollection; // DEKLARASIKAN di sini
+        
+        
+        // --- Path Firestore ---
+        // Fungsi ini harus didefinisikan SEBELUM 'try' block
+        const getCollectionPath = (collectionName) => `artifacts/${appId}/public/data/${collectionName}`;
+        
+        try { // <-- MEMPERBAIKI: Menambahkan 'try' block
             app = initializeApp(firebaseConfig);
             auth = getAuth(app);
             db = getFirestore(app);
             console.log("Firebase Berhasil Diinisialisasi.");
-        } catch (e) {
+
+            // MEMPERBAIKI: Memindahkan definisi koleksi ke dalam 'try' block
+            presenceCollection = collection(db, getCollectionPath('presence'));
+            updatesCollection = collection(db, getCollectionPath('updates'));
+            linksCollection = collection(db, getCollectionPath('dashboardLinks'));
+            todosCollection = collection(db, getCollectionPath('todos'));
+
+        } catch (e) { // MEMPERBAIKI: Blok 'catch' sekarang berada di tempat yang benar
             console.error("Error inisialisasi Firebase:", e);
             document.body.innerHTML = '<h1 class="text-red-500 text-center p-8">Error Konfigurasi Firebase. Periksa console.</h1>';
         }
@@ -329,6 +344,14 @@
         let calendar = null;
         let allTodos = [];
         const teamMembers = ["Dhanu", "Hisyam", "Dava", "Nezya", "Andin"];
+        // TAMBAHKAN MAPPING UNTUK EMAIL KE NAMA
+        const userEmailToName = {
+            'dhanu@dashboardc2.com': 'Dhanu',
+            'hisyam@dashboardc2.com': 'Hisyam',
+            'dava@dashboardc2.com': 'Dava',
+            'nezya@dashboardc2.com': 'Nezya',
+            'andin@dashboardc2.com': 'Andin'
+        };
         let presenceInterval = null; // Untuk update presence
         let unsubscribeListeners = []; // Untuk menyimpan fungsi unsubscribe
 
@@ -336,8 +359,10 @@
         const loginView = document.getElementById('login-view');
         const appView = document.getElementById('app-view');
         const loginButton = document.getElementById('login-button');
+        const loginForm = document.getElementById('login-form'); // Referensi Form
+        const loginError = document.getElementById('login-error'); // Referensi Error
         const logoutButton = document.getElementById('logout-button');
-        const usernameSelect = document.getElementById('username-select');
+        // const usernameSelect = document.getElementById('username-select'); // <-- TIDAK DIGUNAKAN LAGI
         const welcomeUsername = document.getElementById('welcome-username');
         const pageTitle = document.getElementById('page-title');
         
@@ -365,56 +390,88 @@
         const timelineMemberSelect = document.getElementById('timeline-member-select');
 
         // --- Path Firestore ---
-        // Menggunakan path 'public' sesuai instruksi untuk kolaborasi
-        const getCollectionPath = (collectionName) => `artifacts/${appId}/public/data/${collectionName}`;
-        const presenceCollection = collection(db, getCollectionPath('presence'));
-        const updatesCollection = collection(db, getCollectionPath('updates'));
-        const linksCollection = collection(db, getCollectionPath('dashboardLinks'));
-        const todosCollection = collection(db, getCollectionPath('todos'));
+        // MEMPERBAIKI: Definisi koleksi telah dipindahkan ke dalam 'try' block di atas
+        // Tidak ada yang perlu didefinisikan di sini lagi.
 
         // --- Inisialisasi Firebase Auth ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                console.log("Auth state changed, user ID:", user.uid);
+                // User sudah login
+                console.log("Auth state changed, user ID:", user.uid, "Email:", user.email);
                 currentUserId = user.uid;
-            } else {
-                console.log("No user signed in, attempting sign in...");
-                try {
-                    // Coba sign-in anonim jika tidak ada token khusus
-                    await signInAnonymously(auth);
-                    console.log("Signed in Anonymously.");
-                } catch (error) {
-                    console.error("Error signing in:", error);
+                
+                // Coba petakan email ke username
+                const username = userEmailToName[user.email];
+                if (username) {
+                    // Sukses, user dikenali
+                    currentUsername = username;
+                    welcomeUsername.textContent = currentUsername;
+                    todoPic.textContent = currentUsername;
+                    
+                    loginView.style.display = 'none';
+                    appView.style.display = 'block';
+                    startApp();
+                } else {
+                    // Email user tidak ada di map. Logout paksa.
+                    console.error("User email not recognized:", user.email);
+                    await signOut(auth);
                 }
+            } else {
+                // User tidak login
+                console.log("No user signed in.");
+                currentUserId = null;
+                currentUsername = null;
+                // Pastikan app terhenti dan login terlihat
+                stopApp();
+                loginView.style.display = 'flex';
+                appView.style.display = 'none';
             }
         });
 
         // --- Logika Login/Logout ---
-        loginButton.addEventListener('click', () => {
-            if (!currentUserId) {
-                // Jangan gunakan alert()
-                console.error("User ID belum siap. Coba lagi.");
-                // Tampilkan pesan error non-invasif jika perlu
-                loginButton.textContent = "Autentikasi... Coba lagi";
-                setTimeout(() => loginButton.textContent = "Masuk", 2000);
+        loginForm.addEventListener('submit', async (e) => { // <-- GANTI DARI loginButton.click
+            e.preventDefault(); // Hentikan form dari reload halaman
+            loginButton.disabled = true;
+            loginButton.textContent = "Memproses...";
+            loginError.textContent = '';
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            if (!email || !password) {
+                loginError.textContent = "Email dan password harus diisi.";
+                loginButton.disabled = false;
+                loginButton.textContent = "Masuk";
                 return;
             }
-            
-            currentUsername = usernameSelect.value;
-            welcomeUsername.textContent = currentUsername;
-            todoPic.textContent = currentUsername;
-            
-            loginView.style.display = 'none';
-            appView.style.display = 'block';
 
-            startApp();
+            try {
+                // Gunakan fungsi login baru
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                // Jika sukses, onAuthStateChanged akan otomatis menangani
+                console.log("Login sukses:", userCredential.user.email);
+                
+            } catch (error) {
+                console.error("Error signing in:", error.code);
+                if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+                    loginError.textContent = "Email atau password salah.";
+                } else {
+                    loginError.textContent = "Terjadi error saat login.";
+                }
+            } finally {
+                loginButton.disabled = false;
+                loginButton.textContent = "Masuk";
+            }
         });
 
-        logoutButton.addEventListener('click', () => {
-            stopApp();
-            currentUsername = null;
-            loginView.style.display = 'flex';
-            appView.style.display = 'none';
+        logoutButton.addEventListener('click', async () => { // <-- Tambah async
+            try {
+                await signOut(auth); // Panggil fungsi signOut
+                console.log("User signed out.");
+                // onAuthStateChanged akan otomatis menangani sisanya (stopApp, tampilkan login)
+            } catch (error) {
+                console.error("Error signing out:", error);
+            }
         });
 
         // --- Logika Navigasi ---
@@ -900,4 +957,5 @@
 
 </body>
 </html>
+
 
