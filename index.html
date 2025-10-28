@@ -1296,10 +1296,6 @@
         const members = ['Dhanu', 'Hisyam', 'Dava', 'Nezya', 'Andin'];
 
         // Data stored in memory (simulating localStorage for sandbox compatibility)
-        // Konfigurasi GitHub Gist
-        const GIST_ID = '36672ba5f6354a1787d4d902d6838a7b'; // Isi dengan ID Gist Anda nanti
-        const GITHUB_TOKEN = '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'; // Isi dengan token GitHub Anda (Perhatian: Dalam produksi, jangan simpan token di client)
-
         let appData = {
             currentUser: null,
             todos: [],
@@ -1308,57 +1304,27 @@
             activityLog: []
         };
 
-        // Fungsi untuk menyimpan data ke GitHub Gist
-        async function saveToGist() {
+        // Fungsi untuk menyimpan data ke localStorage
+        function saveData() {
             try {
-                const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Authorization': `token ${GITHUB_TOKEN}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        files: {
-                            'appData.json': {
-                                content: JSON.stringify(appData)
-                            }
-                        }
-                    })
-                });
-                if (!response.ok) throw new Error('Failed to save to Gist');
-                console.log('Data saved to Gist successfully');
-            } catch (error) {
-                console.error('Error saving to Gist:', error);
-                // Fallback ke localStorage
                 localStorage.setItem('appData', JSON.stringify(appData));
+                console.log('Data saved successfully');
+            } catch (error) {
+                console.error('Error saving data:', error);
             }
         }
 
-        // Fungsi untuk memuat data dari GitHub Gist
-        async function loadFromGist() {
+        // Fungsi untuk memuat data dari localStorage
+        function loadData() {
             try {
-                // Coba load dari localStorage dulu sementara menunggu Gist
                 const localData = localStorage.getItem('appData');
                 if (localData) {
                     const parsedLocalData = JSON.parse(localData);
                     appData = { ...appData, ...parsedLocalData };
                     updateUIAfterLogin();
                 }
-
-                const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-                    headers: {
-                        'Authorization': `token ${GITHUB_TOKEN}`
-                    }
-                });
-                if (!response.ok) throw new Error('Failed to load from Gist');
-                const data = await response.json();
-                const content = data.files['appData.json'].content;
-                const loadedData = JSON.parse(content);
-                appData = { ...appData, ...loadedData };
-                updateUIAfterLogin();
             } catch (error) {
-                console.error('Error loading from Gist:', error);
-                // Sudah mencoba load dari localStorage di awal
+                console.error('Error loading data:', error);
             }
         }
 
@@ -1392,9 +1358,9 @@
                 }
             }
         }        // Initialize app
-        async function initApp() {
-            // Load data from Gist first
-            await loadFromGist();
+        function initApp() {
+            // Load data from localStorage first
+            loadData();
             
             // Then initialize with sample data if empty
             if (appData.todos.length === 0) {
@@ -1502,7 +1468,7 @@
 
                 showToast('Welcome, ' + username + '!', 'success');
 
-                saveToGist();
+                saveData();
             }
         }
 
@@ -1538,7 +1504,7 @@
             });
             // Keep only last 10 activities
             appData.activityLog = appData.activityLog.slice(0, 10);
-            saveToGist();
+            saveData();
         }
 
         // Switch view
@@ -1704,7 +1670,7 @@
 
             loadCustomLinks();
             showToast('Link updated successfully', 'success');
-            saveToGist();
+            saveData();
         }
 
         // Delete custom link
@@ -1714,7 +1680,7 @@
             appData.customLinks = appData.customLinks.filter(l => l.id !== id);
             loadCustomLinks();
             showToast('Link deleted successfully', 'success');
-            saveToGist();
+            saveData();
         }
 
         // Load charts
