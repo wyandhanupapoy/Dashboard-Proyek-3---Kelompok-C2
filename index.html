@@ -1296,6 +1296,10 @@
         const members = ['Dhanu', 'Hisyam', 'Dava', 'Nezya', 'Andin'];
 
         // Data stored in memory (simulating localStorage for sandbox compatibility)
+        // Konfigurasi GitHub Gist
+        const GIST_ID = '36672ba5f6354a1787d4d902d6838a7b'; // Ganti dengan ID Gist Anda
+        const GITHUB_TOKEN = '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'; // Ganti dengan token GitHub Anda
+
         let appData = {
             currentUser: null,
             todos: [],
@@ -1304,27 +1308,130 @@
             activityLog: []
         };
 
-        // Fungsi untuk menyimpan data ke localStorage
-        function saveData() {
-            try {
-                localStorage.setItem('appData', JSON.stringify(appData));
-                console.log('Data saved successfully');
-            } catch (error) {
-                console.error('Error saving data:', error);
+        // Variabel untuk throttling
+        let saveTimeout = null;
+        const SAVE_DELAY = 1000; // Delay 1 detik
+
+        // Fungsi untuk menyimpan data ke Gist dengan throttling
+        function saveToGist() {
+            // Clear existing timeout
+            if (saveTimeout) {
+                clearTimeout(saveTimeout);
             }
+
+            // Set new timeout
+            saveTimeout = setTimeout(async () => {
+                try {
+                    // Simpan ke localStorage sebagai backup
+                    localStorage.setItem('appData', JSON.stringify(appData));
+
+                    const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Authorization': `Bearer ${GITHUB_TOKEN}`,
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/vnd.github.v3+json'
+                        },
+                        body: JSON.stringify({
+                            files: {
+                                'appData.json': {
+                                    content: JSON.stringify(appData)
+                                }
+                            }
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Failed to save to Gist: ${response.status}`);
+                    }
+
+                    console.log('Data saved to Gist successfully');
+                } catch (error) {
+                    console.error('Error saving to Gist:', error);
+                    // Data sudah tersimpan di localStorage sebagai backup
+                }
+            }, SAVE_DELAY);
         }
 
-        // Fungsi untuk memuat data dari localStorage
-        function loadData() {
+        // Fungsi untuk memuat data dari Gist
+        async function loadFromGist() {
             try {
+                // Coba load dari localStorage dulu
                 const localData = localStorage.getItem('appData');
                 if (localData) {
                     const parsedLocalData = JSON.parse(localData);
                     appData = { ...appData, ...parsedLocalData };
                     updateUIAfterLogin();
                 }
+
+                // Kemudian coba load dari Gist untuk data terbaru
+                const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+                    headers: {
+                        'Authorization': `Bearer ${GITHUB_TOKEN}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to load from Gist: ${response.status}`);
+                }
+
+                const data = await response.json();
+                if (data.files['appData.json']) {
+                    const content = data.files['appData.json'].content;
+                    const loadedData = JSON.parse(content);
+                    appData = { ...appData, ...loadedData };
+                    
+                    // Update localStorage dengan data terbaru
+                    localStorage.setItem('appData', JSON.stringify(appData));
+                    
+                    updateUIAfterLogin();
+                }
             } catch (error) {
-                console.error('Error loading data:', error);
+                console.error('Error loading from Gist:', error);
+                // Sudah mencoba load dari localStorage di awal
+            }
+        }
+
+        // Polling function untuk update realtime
+        let pollInterval = null;
+        
+        function startPolling() {
+            if (!pollInterval) {
+                pollInterval = setInterval(async () => {
+                    try {
+                        const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+                            headers: {
+                                'Authorization': `Bearer ${GITHUB_TOKEN}`,
+                                'Accept': 'application/vnd.github.v3+json'
+                            }
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`Failed to poll Gist: ${response.status}`);
+                        }
+
+                        const data = await response.json();
+                        const content = data.files['appData.json'].content;
+                        const loadedData = JSON.parse(content);
+                        
+                        // Compare last modified time to avoid unnecessary updates
+                        if (loadedData.lastModified !== appData.lastModified) {
+                            appData = { ...appData, ...loadedData };
+                            updateUIAfterLogin();
+                            localStorage.setItem('appData', JSON.stringify(appData));
+                        }
+                    } catch (error) {
+                        console.error('Error polling Gist:', error);
+                    }
+                }, 5000); // Poll every 5 seconds
+            }
+        }
+
+        function stopPolling() {
+            if (pollInterval) {
+                clearInterval(pollInterval);
+                pollInterval = null;
             }
         }
 
@@ -1358,9 +1465,12 @@
                 }
             }
         }        // Initialize app
-        function initApp() {
-            // Load data from localStorage first
-            loadData();
+        async function initApp() {
+            // Load data from Gist first
+            await loadFromGist();
+            
+            // Start realtime polling
+            startPolling();
             
             // Then initialize with sample data if empty
             if (appData.todos.length === 0) {
@@ -1479,6 +1589,7 @@
             document.getElementById('loginPage').style.display = 'flex';
             document.getElementById('appContainer').classList.remove('active');
             document.getElementById('loginForm').reset();
+            stopPolling();
             showToast('Logged out successfully', 'success');
         }
 
@@ -1504,7 +1615,7 @@
             });
             // Keep only last 10 activities
             appData.activityLog = appData.activityLog.slice(0, 10);
-            saveData();
+            saveToGist();
         }
 
         // Switch view
@@ -1670,7 +1781,7 @@
 
             loadCustomLinks();
             showToast('Link updated successfully', 'success');
-            saveData();
+            saveToGist();
         }
 
         // Delete custom link
@@ -1680,7 +1791,7 @@
             appData.customLinks = appData.customLinks.filter(l => l.id !== id);
             loadCustomLinks();
             showToast('Link deleted successfully', 'success');
-            saveData();
+            saveToGist();
         }
 
         // Load charts
