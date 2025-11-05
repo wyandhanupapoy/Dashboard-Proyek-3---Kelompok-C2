@@ -20,6 +20,9 @@
     <!-- html2canvas is not strictly required, kept for future visual captures
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script> -->
 
+    <!-- [BARU] Drag & Drop untuk Kanban (Gratis) -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+
     <style>
         /* ===== IMPORT FONT ===== */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -788,6 +791,21 @@
         
         /* [DIHAPUS] Sisa style lama dihapus karena sudah digantikan oleh CSS di atas */
         
+        /* ===== KANBAN BOARD ===== */
+        #kanban-board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
+        @media (max-width: 1024px) { #kanban-board { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media (max-width: 640px) { #kanban-board { grid-template-columns: 1fr; } }
+        .kanban-col { background: #fff; border-radius: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,0.06); padding: 1rem; display: flex; flex-direction: column; max-height: 70vh; }
+        .kanban-col-header { display:flex; align-items:center; justify-content:space-between; margin-bottom: .5rem; }
+        .kanban-col-title { font-weight: 700; color: #0f172a; }
+        .kanban-list { flex: 1; overflow-y: auto; }
+        .kanban-card { background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #6366f1; border-radius: .75rem; padding: .75rem; margin-bottom: .5rem; cursor: grab; }
+        .kanban-card:hover { background: #f1f5f9; }
+        .kanban-card-title { font-weight:600; color:#0f172a; font-size: .925rem; }
+        .kanban-card-meta { display:flex; gap:.5rem; flex-wrap: wrap; margin-top:.25rem; }
+        .kanban-badge { font-size: .7rem; padding: .15rem .5rem; border-radius: 9999px; border:1px solid rgba(0,0,0,.06); }
+        .kanban-empty { color:#64748b; text-align:center; padding: .75rem; font-size:.9rem; }
+        
     </style>
 </head>
 <body class="bg-slate-100">
@@ -1024,8 +1042,45 @@
                             </div>
                         </div>
 
+                        <!-- [BARU] Toggle Tampilan: Board / Tabel -->
+                        <div class="flex items-center justify-between mb-4">
+                            <div></div>
+                            <div class="inline-flex bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+                                <button id="todo-view-toggle-board" type="button" class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">Board</button>
+                                <button id="todo-view-toggle-table" type="button" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600">Tabel</button>
+                            </div>
+                        </div>
+
+                        <!-- [BARU] Kanban Board -->
+                        <div id="kanban-board" class="mb-6 hidden">
+                            <div class="kanban-col" data-status="Direncanakan">
+                                <div class="kanban-col-header">
+                                    <div class="kanban-col-title">📋 Direncanakan</div>
+                                </div>
+                                <div id="kanban-list-Direncanakan" class="kanban-list"></div>
+                            </div>
+                            <div class="kanban-col" data-status="On Going">
+                                <div class="kanban-col-header">
+                                    <div class="kanban-col-title">⚡ On Going</div>
+                                </div>
+                                <div id="kanban-list-On Going" class="kanban-list"></div>
+                            </div>
+                            <div class="kanban-col" data-status="On Review">
+                                <div class="kanban-col-header">
+                                    <div class="kanban-col-title">👀 On Review</div>
+                                </div>
+                                <div id="kanban-list-On Review" class="kanban-list"></div>
+                            </div>
+                            <div class="kanban-col" data-status="Done">
+                                <div class="kanban-col-header">
+                                    <div class="kanban-col-title">✅ Done</div>
+                                </div>
+                                <div id="kanban-list-Done" class="kanban-list"></div>
+                            </div>
+                        </div>
+
                         <!-- Tabel Tugas -->
-                        <div class="bg-white rounded-2xl shadow-lg">
+                        <div id="todo-table-wrap" class="bg-white rounded-2xl shadow-lg">
                             <div class="overflow-x-auto">
                                 <table class="w-full min-w-[800px]">
                                     <thead class="bg-slate-50 border-b border-slate-200">
@@ -1218,6 +1273,29 @@
                         </div>
                         <p class="text-xs text-slate-500">Catatan: Jika mengisi URL, gunakan format lengkap (https://). Jika memilih Deskripsi, isi ringkasan atau catatan terkait tugas.</p>
                     </section>
+
+                    <!-- [BARU] Bagian: Pengingat Email (Gratis) -->
+                    <section class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium text-slate-700">Pengingat Email</span>
+                            <span class="text-xs text-slate-500">Kirim email H-berapa sebelum deadline</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div>
+                                <label for="reminder-email" class="block text-xs font-medium text-slate-600 mb-1">Email Tujuan</label>
+                                <input type="email" id="reminder-email" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="you@example.com">
+                            </div>
+                            <div>
+                                <label for="reminder-days" class="block text-xs font-medium text-slate-600 mb-1">H- (hari sebelum)</label>
+                                <input type="number" min="0" step="1" id="reminder-days" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="1">
+                            </div>
+                            <div class="flex items-end">
+                                <button type="button" id="add-reminder-btn" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 px-4 py-2 rounded-lg font-medium border border-slate-300">Tambah Pengingat</button>
+                            </div>
+                        </div>
+                        <div id="reminder-list" class="flex flex-wrap gap-2"></div>
+                        <p class="text-xs text-slate-500">Pengiriman otomatis bisa diatur gratis via Google Apps Script. Lihat instruksi di README bagian Reminder.</p>
+                    </section>
                 </div>
                 
                 <!-- Footer Modal -->
@@ -1342,6 +1420,11 @@
           appId: "1:436435825783:web:0e401267d62220ef648272",
           measurementId: "G-MBST0KEWEV"
         };
+        
+    // [BARU] Opsi integrasi gratis Apps Script (opsional)
+    // Isi dengan URL Web App Google Apps Script Anda jika ingin pengiriman email otomatis terjadwal.
+    // Biarkan string kosong jika belum men-setup.
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlQGcuteVVn3LS3PxsEfOD0TnKq24PPkRxap2ROBrB_eV7RLLPT35vekTUqNjEOYPK/exec";
         
         // 2. ATURAN KEAMANAN FIRESTORE
         /* rules_version = '2';
@@ -1516,6 +1599,19 @@
         const todoPriorityFilter = document.getElementById('todo-priority-filter'); // [BARU]
         const todoStatusFilter = document.getElementById('todo-status-filter'); // [BARU]
         const todoSortBy = document.getElementById('todo-sort-by'); // [BARU]
+        // [BARU] Toggle & Board
+        const todoViewToggleBoard = document.getElementById('todo-view-toggle-board');
+        const todoViewToggleTable = document.getElementById('todo-view-toggle-table');
+        const kanbanBoardEl = document.getElementById('kanban-board');
+        const todoTableWrap = document.getElementById('todo-table-wrap');
+        const kanbanLists = {
+            'Direncanakan': document.getElementById('kanban-list-Direncanakan'),
+            'On Going': document.getElementById('kanban-list-On Going'),
+            'On Review': document.getElementById('kanban-list-On Review'),
+            'Done': document.getElementById('kanban-list-Done')
+        };
+        let currentTodoView = 'table';
+        let kanbanSortables = {};
 
         // ... Elemen DOM (Timeline) ... tidak berubah
         const timelineUserFilter = document.getElementById('timeline-user-filter');
@@ -1543,6 +1639,12 @@
     const attachmentDescWrap = document.getElementById('attachment-desc-wrap');
     const taskLinkError = document.getElementById('task-link-error');
     const taskDurationEl = document.getElementById('task-duration');
+    // [BARU] Pengingat Email
+    const reminderEmailInput = document.getElementById('reminder-email');
+    const reminderDaysInput = document.getElementById('reminder-days');
+    const addReminderBtn = document.getElementById('add-reminder-btn');
+    const reminderListEl = document.getElementById('reminder-list');
+    let remindersDraft = [];
         
         // ... Elemen DOM (Nav Mobile, Modal Konfirmasi) ... tidak berubah
         const menuBtn = document.getElementById('menu-btn');
@@ -1583,6 +1685,8 @@
                     taskDescInput.value = doc;
                     taskLinkUrlInput.value = '';
                 }
+                // Prefill pengingat
+                remindersDraft = Array.isArray(task.reminders) ? [...task.reminders] : [];
             } else {
                 // Mode Tambah Baru
                 taskModalTitle.innerText = "Tambah Tugas Baru";
@@ -1591,9 +1695,13 @@
                 taskProgressSelect.value = "Direncanakan";
                 taskPrioritySelect.value = "Sedang"; // [DIUBAH]
                 setAttachmentMode('url');
+                // Default pengingat: kosong, prefill email user
+                remindersDraft = [];
+                if (reminderEmailInput) reminderEmailInput.value = currentUser?.email || '';
             }
             taskModal.classList.remove('hidden', 'opacity-0', 'scale-95');
             updateDuration();
+            renderReminderChips();
         }
         function hideTaskModal() {
             taskModal.classList.add('opacity-0', 'scale-95');
@@ -1620,6 +1728,43 @@
         });
         confirmModalCancelBtn.addEventListener('click', () => {
             hideConfirmationModal();
+        });
+
+        // [BARU] Helper Pengingat Email
+        function renderReminderChips() {
+            if (!reminderListEl) return;
+            reminderListEl.innerHTML = '';
+            if (!remindersDraft.length) {
+                const span = document.createElement('span');
+                span.className = 'text-xs text-slate-500';
+                span.textContent = 'Belum ada pengingat.';
+                reminderListEl.appendChild(span);
+                return;
+            }
+            remindersDraft.forEach((r, idx) => {
+                const chip = document.createElement('span');
+                chip.className = 'inline-flex items-center gap-2 text-xs bg-slate-100 text-slate-700 border border-slate-300 rounded-full px-3 py-1';
+                chip.innerHTML = `${r.email} • H-${r.daysBefore} <button type="button" class="text-red-600 hover:underline" data-idx="${idx}">Hapus</button>`;
+                chip.querySelector('button')?.addEventListener('click', () => {
+                    remindersDraft.splice(idx,1);
+                    renderReminderChips();
+                });
+                reminderListEl.appendChild(chip);
+            });
+        }
+        addReminderBtn?.addEventListener('click', () => {
+            const email = (reminderEmailInput?.value || '').trim();
+            const days = parseInt(reminderDaysInput?.value || '');
+            if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+                showConfirmationModal('Input Salah', 'Masukkan email yang valid untuk pengingat.', () => {});
+                return;
+            }
+            if (isNaN(days) || days < 0) {
+                showConfirmationModal('Input Salah', 'Masukkan angka H- yang valid (>= 0).', () => {});
+                return;
+            }
+            remindersDraft.push({ email, daysBefore: days });
+            renderReminderChips();
         });
 
         // ... navigateTo ... tidak berubah
@@ -1858,6 +2003,29 @@
                 navigateTo(targetPage);
             });
         });
+        
+        // [BARU] Toggle Board/Tabel
+        function setTodoView(view) {
+            currentTodoView = view;
+            if (view === 'board') {
+                kanbanBoardEl.classList.remove('hidden');
+                todoTableWrap.classList.add('hidden');
+                todoViewToggleBoard.classList.add('bg-indigo-600','text-white');
+                todoViewToggleTable.classList.remove('bg-indigo-600','text-white');
+                todoViewToggleTable.classList.add('text-slate-600');
+                applyFiltersAndRender();
+                setupKanbanDnD();
+            } else {
+                kanbanBoardEl.classList.add('hidden');
+                todoTableWrap.classList.remove('hidden');
+                todoViewToggleTable.classList.add('bg-indigo-600','text-white');
+                todoViewToggleBoard.classList.remove('bg-indigo-600','text-white');
+                todoViewToggleBoard.classList.add('text-slate-600');
+                applyFiltersAndRender();
+            }
+        }
+        todoViewToggleBoard?.addEventListener('click', () => setTodoView('board'));
+        todoViewToggleTable?.addEventListener('click', () => setTodoView('table'));
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = loginEmail.value; 
@@ -2231,6 +2399,22 @@
                 console.error("Error logging update:", error);
             }
         }
+        // [BARU] Sinkronisasi opsional ke Apps Script (gratis)
+        async function syncTaskToAppsScript(task) {
+            if (!APPS_SCRIPT_URL) return; // no-op jika belum dikonfigurasi
+            try {
+                await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'upsert-task',
+                        task
+                    })
+                });
+            } catch (e) {
+                console.warn('Gagal sync ke Apps Script (diabaikan):', e);
+            }
+        }
         function listenOnlineStatus() {
             const q = query(collection(db, "users_status"));
             const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -2470,8 +2654,12 @@
                 }
             });
 
-            // 3. Render tabel dengan data yang sudah difilter & disortir
-            renderTodoList(filteredTasks);
+            // 3. Render sesuai tampilan saat ini
+            if (currentTodoView === 'board') {
+                renderKanbanBoard(filteredTasks);
+            } else {
+                renderTodoList(filteredTasks);
+            }
         }
         
         // [DIUBAH] Render daftar To-Do
@@ -2536,6 +2724,79 @@
                         </td>
                     </tr>
                 `;
+            });
+        }
+        
+        // [BARU] Render Kanban Board
+        function renderKanbanBoard(tasksToRender) {
+            if (!kanbanLists) return;
+            // Kosongkan semua kolom
+            Object.keys(kanbanLists).forEach(k => { kanbanLists[k].innerHTML = ''; });
+            const makeCard = (t) => {
+                const userColor = userColors[t.picName] || { primary: '#6366f1' };
+                const prio = t.priority || 'default';
+                const prioStyle = priorityDisplay[prio] || priorityDisplay['default'];
+                const deadline = t.deadlineDate ? new Date(t.deadlineDate).toLocaleDateString('id-ID') : '-';
+                const el = document.createElement('div');
+                el.className = 'kanban-card';
+                el.style.borderLeftColor = userColor.primary;
+                el.dataset.id = t.id;
+                el.innerHTML = `
+                    <div class="kanban-card-title">${t.taskName}</div>
+                    <div class="kanban-card-meta">
+                        <span class="kanban-badge" style="background:#fff;color:#334155;border-color:#e2e8f0;">👤 ${t.picName}</span>
+                        <span class="kanban-badge ${prioStyle.bg} ${prioStyle.text}">🎯 ${t.priority || '-'}</span>
+                        <span class="kanban-badge" style="background:#fff;color:#334155;border-color:#e2e8f0;">⏰ ${deadline}</span>
+                    </div>
+                `;
+                el.addEventListener('dblclick', async () => {
+                    try {
+                        const taskRef = doc(db, 'todos', t.id);
+                        const taskSnap = await getDoc(taskRef);
+                        if (taskSnap.exists()) {
+                            showTaskModal({ id: taskSnap.id, ...taskSnap.data() });
+                        }
+                    } catch {}
+                });
+                return el;
+            };
+            // Sisipkan kartu
+            tasksToRender.forEach(t => {
+                const col = kanbanLists[t.progress] || kanbanLists['Direncanakan'];
+                col?.appendChild(makeCard(t));
+            });
+            // Tampilkan pesan kolom kosong
+            Object.entries(kanbanLists).forEach(([status, listEl]) => {
+                if (!listEl.children.length) {
+                    const empty = document.createElement('div');
+                    empty.className = 'kanban-empty';
+                    empty.innerText = 'Belum ada tugas';
+                    listEl.appendChild(empty);
+                }
+            });
+        }
+        
+        // [BARU] Inisialisasi Drag & Drop Kanban (sekali saja)
+        function setupKanbanDnD() {
+            const groupName = 'kanban-group';
+            Object.entries(kanbanLists).forEach(([status, listEl]) => {
+                if (!listEl || kanbanSortables[status]) return;
+                kanbanSortables[status] = new Sortable(listEl, {
+                    group: groupName,
+                    animation: 150,
+                    ghostClass: 'bg-slate-200',
+                    onAdd: async (evt) => {
+                        const el = evt.item;
+                        const taskId = el.dataset.id;
+                        // Status baru berdasarkan parent kolom
+                        const parentCol = el.closest('.kanban-col');
+                        const newStatus = parentCol?.getAttribute('data-status') || 'Direncanakan';
+                        try {
+                            await updateDoc(doc(db, 'todos', taskId), { progress: newStatus, updatedAt: serverTimestamp() });
+                            await logUpdate(`${currentUser.name} memindahkan tugas ke '${newStatus}'.`);
+                        } catch (e) { console.error('Gagal update status:', e); }
+                    }
+                });
             });
         }
         
@@ -2669,6 +2930,7 @@
                 startDate: taskStartDateInput.value,
                 deadlineDate: taskDeadlineDateInput.value,
                 documentLink: getDocumentLinkFromForm(),
+                reminders: remindersDraft,
                 updatedAt: serverTimestamp()
             };
             
@@ -2683,11 +2945,14 @@
                     const taskRef = doc(db, "todos", taskId);
                     await updateDoc(taskRef, taskData);
                     await logUpdate(`${currentUser.name} mengedit tugas: ${taskData.taskName}`);
+                    syncTaskToAppsScript({ id: taskId, ...taskData });
                 } else {
                     taskData.createdAt = serverTimestamp();
                     taskData.createdBy = currentUser.name;
                     await addDoc(collection(db, "todos"), taskData);
                     await logUpdate(`${currentUser.name} menambah tugas baru: ${taskData.taskName}`);
+                    // Catatan: addDoc memberi ID di server; kita kirim tanpa id ke Apps Script
+                    syncTaskToAppsScript(taskData);
                 }
                 hideTaskModal();
             } catch (error) {
