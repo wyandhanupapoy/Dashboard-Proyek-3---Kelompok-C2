@@ -348,11 +348,53 @@
         }
 
         .fc .fc-col-header-cell {
-            background-color: var(--slate-50);
-            font-weight: 600;
+            /* Header nama hari (Min, Sen, Sel, Rab, dst) */
+            background-color: #ffffff; /* tutup area atas agar tidak bolong */
+            font-weight: 700;
             text-transform: uppercase;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             letter-spacing: 0.05em;
+            border-bottom: 2px solid var(--slate-200) !important;
+        }
+
+        /* Buat baris header kalender lengket (sticky) saat discroll */
+        .fc .fc-scrollgrid-section-header {
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 40 !important; /* di atas konten event */
+            background: #ffffff !important;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.06); /* efek menutup dengan sempurna */
+        }
+
+        /* Pastikan grid mendukung sticky header */
+        .fc .fc-scrollgrid {
+            border-collapse: separate !important;
+            border-spacing: 0;
+        }
+
+        /* Batasi tinggi kalender dan aktifkan scroll vertikal supaya header bisa sticky */
+        #timeline-calendar {
+            max-height: 75vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background: #ffffff; /* tutup area belakang */
+            border-radius: var(--radius-xl);
+        }
+
+        /* Scrollbar kalender yang lebih halus */
+        #timeline-calendar::-webkit-scrollbar { width: 10px; }
+        #timeline-calendar::-webkit-scrollbar-track { background: var(--slate-100); border-radius: 5px; }
+        #timeline-calendar::-webkit-scrollbar-thumb { background: var(--slate-400); border-radius: 5px; }
+        #timeline-calendar::-webkit-scrollbar-thumb:hover { background: var(--slate-500); }
+
+        /* Peningkatan tabel To-Do: baris zebra agar lebih mudah dibaca */
+        #todo-page table tbody tr:nth-child(even) {
+            background-color: #fafbfc;
+        }
+        #todo-page table thead th {
+            background: #ffffff; /* tutup bagian atas tabel dengan sempurna */
+            box-shadow: 0 2px 0 rgba(15, 23, 42, 0.06);
+            z-index: 10;
         }
 
         /* [BARU] Custom tooltip untuk FullCalendar */
@@ -817,43 +859,68 @@
                     
                     <!-- ... Halaman Dashboard ... tidak ada perubahan ... -->
                     <div id="dashboard-page" class="app-page">
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <!-- Card: Update Terbaru -->
-                            <div class="lg:col-span-2 bg-white rounded-2xl shadow-lg p-6">
+                        <div class="space-y-6">
+                            <!-- Card: Dashboard Utama (Link Penting) - DIPINDAH KE PALING ATAS -->
+                            <div class="bg-white rounded-2xl shadow-lg p-6">
+                                <h3 class="text-lg font-semibold text-slate-800 mb-4">Dashboard Utama (Link Penting)</h3>
+                                <form id="add-link-form" class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
+                                    <input type="text" id="link-name" class="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Nama Link (Contoh: Desain Figma)" required>
+                                    <input type="url" id="link-url" class="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="https://..." required>
+                                    <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition duration-150">Tambah Link</button>
+                                </form>
+                                <div class="max-h-64 overflow-y-auto no-scrollbar">
+                                    <ul id="dashboard-links-list" class="grid md:grid-cols-2 gap-2">
+                                        <!-- Diisi oleh JS: item link sebagai kartu kecil yang mudah diklik -->
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Card: Update Terbaru - DI BAWAH LINK -->
+                            <div class="bg-white rounded-2xl shadow-lg p-6">
                                 <h3 class="text-lg font-semibold text-slate-800 mb-4">Update Terbaru</h3>
                                 <div id="recent-updates-list" class="space-y-4 max-h-80 overflow-y-auto no-scrollbar">
                                     <p class="text-slate-500 text-sm">Memuat update...</p>
                                 </div>
                             </div>
-                            
-                            <!-- Card: Analisa Chart (Progress Tugas) -->
+
+                            <!-- Card: Statistik Proyek - LEBIH KOMPLEKS -->
                             <div class="bg-white rounded-2xl shadow-lg p-6">
-                                <h3 class="text-lg font-semibold text-slate-800 mb-4">Progress Tugas</h3>
-                                <div class="h-80 flex items-center justify-center">
-                                    <canvas id="project-progress-chart"></canvas>
+                                <h3 class="text-lg font-semibold text-slate-800 mb-4">Statistik Proyek</h3>
+                                <!-- Ringkasan Angka Cepat -->
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                    <div class="rounded-xl border border-slate-200 p-4 hover-lift">
+                                        <div class="text-xs uppercase text-slate-500">Total Tugas</div>
+                                        <div id="stat-total" class="text-2xl font-bold text-slate-800">0</div>
+                                    </div>
+                                    <div class="rounded-xl border border-slate-200 p-4 hover-lift">
+                                        <div class="text-xs uppercase text-slate-500">On Going</div>
+                                        <div id="stat-ongoing" class="text-2xl font-bold text-blue-600">0</div>
+                                    </div>
+                                    <div class="rounded-xl border border-slate-200 p-4 hover-lift">
+                                        <div class="text-xs uppercase text-slate-500">Done</div>
+                                        <div id="stat-done" class="text-2xl font-bold text-emerald-600">0</div>
+                                    </div>
+                                    <div class="rounded-xl border border-slate-200 p-4 hover-lift">
+                                        <div class="text-xs uppercase text-slate-500">Overdue</div>
+                                        <div id="stat-overdue" class="text-2xl font-bold text-red-600">0</div>
+                                    </div>
+                                </div>
+                                <!-- Dua Chart: Progress (Donut) & Tugas per Anggota (Bar) -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="h-80 flex items-center justify-center">
+                                        <canvas id="project-progress-chart"></canvas>
+                                    </div>
+                                    <div class="h-80 flex items-center justify-center">
+                                        <canvas id="tasks-per-user-chart"></canvas>
+                                    </div>
                                 </div>
                             </div>
-                            
-                            <!-- Card: Anggota Online -->
+
+                            <!-- Card: Anggota Online - DI PALING BAWAH -->
                             <div class="bg-white rounded-2xl shadow-lg p-6">
                                 <h3 class="text-lg font-semibold text-slate-800 mb-4">Anggota Online</h3>
                                 <div id="online-users-list" class="space-y-3 max-h-80 overflow-y-auto no-scrollbar">
                                     <p class="text-slate-500 text-sm">Memuat anggota...</p>
-                                </div>
-                            </div>
-                            
-                            <!-- Card: Dashboard Utama (Link Tautan) -->
-                            <div class="md:col-span-2 lg:col-span-4 bg-white rounded-2xl shadow-lg p-6">
-                                <h3 class="text-lg font-semibold text-slate-800 mb-4">Dashboard Utama (Link Penting)</h3>
-                                <form id="add-link-form" class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2 mb-4">
-                                    <input type="text" id="link-name" class="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Nama Link (Contoh: Desain Figma)" required>
-                                    <input type="url" id="link-url" class="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="https://..." required>
-                                    <button type="submit" class="bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg font-medium hover:bg-indigo-200 transition duration-150">Tambah Link</button>
-                                </form>
-                                <div class="max-h-64 overflow-y-auto no-scrollbar">
-                                    <ul id="dashboard-links-list" class="divide-y divide-slate-100">
-                                        <!-- Daftar link akan diisi oleh JS -->
-                                    </ul>
                                 </div>
                             </div>
                         </div>
@@ -1030,57 +1097,78 @@
                 </div>
                 
                 <!-- Body Modal -->
-                <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+                <div class="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
                     <!-- Hidden input untuk task ID (saat edit) -->
                     <input type="hidden" id="task-id">
                     
-                    <div class="mb-4">
-                        <label for="task-name" class="block text-sm font-medium text-slate-700 mb-2">Nama Tugas</label>
-                        <input type="text" id="task-name" class="w-full px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Bagian: Informasi Dasar -->
+                    <section class="space-y-4">
                         <div>
-                            <label for="task-pic" class="block text-sm font-medium text-slate-700 mb-2">PIC</label>
-                            <select id="task-pic" class="w-full bg-white px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
-                                <!-- Opsi PIC akan diisi oleh JS -->
-                            </select>
+                            <label for="task-name" class="block text-sm font-medium text-slate-700 mb-2">Nama Tugas</label>
+                            <input type="text" id="task-name" class="w-full px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Contoh: Desain halaman beranda" required>
                         </div>
-                        <div>
-                            <label for="task-progress" class="block text-sm font-medium text-slate-700 mb-2">Progress</label>
-                            <select id="task-progress" class="w-full bg-white px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
-                                <option value="Direncanakan">Direncanakan</option>
-                                <option value="On Going">On Going</option>
-                                <option value="On Review">On Review</option>
-                                <option value="Done">Done</option>
-                            </select>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label for="task-pic" class="block text-sm font-medium text-slate-700 mb-2">PIC</label>
+                                <select id="task-pic" class="w-full bg-white px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" required></select>
+                            </div>
+                            <div>
+                                <label for="task-progress" class="block text-sm font-medium text-slate-700 mb-2">Progress</label>
+                                <select id="task-progress" class="w-full bg-white px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                                    <option value="Direncanakan">Direncanakan</option>
+                                    <option value="On Going">On Going</option>
+                                    <option value="On Review">On Review</option>
+                                    <option value="Done">Done</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="task-priority" class="block text-sm font-medium text-slate-700 mb-2">Prioritas</label>
+                                <select id="task-priority" class="w-full bg-white px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                                    <option value="Sedang">Sedang (Default)</option>
+                                    <option value="Tinggi">Tinggi</option>
+                                    <option value="Rendah">Rendah</option>
+                                </select>
+                            </div>
                         </div>
-                        <!-- [BARU] Input Prioritas -->
-                        <div>
-                            <label for="task-priority" class="block text-sm font-medium text-slate-700 mb-2">Prioritas</label>
-                            <select id="task-priority" class="w-full bg-white px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
-                                <option value="Sedang">Sedang (Default)</option>
-                                <option value="Tinggi">Tinggi</option>
-                                <option value="Rendah">Rendah</option>
-                            </select>
+                    </section>
+
+                    <!-- Bagian: Waktu & Durasi -->
+                    <section class="space-y-2">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="task-start-date" class="block text-sm font-medium text-slate-700 mb-2">Start Tanggal</label>
+                                <input type="date" id="task-start-date" class="w-full px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                            </div>
+                            <div>
+                                <label for="task-deadline-date" class="block text-sm font-medium text-slate-700 mb-2">Deadline Tanggal</label>
+                                <input type="date" id="task-deadline-date" class="w-full px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label for="task-start-date" class="block text-sm font-medium text-slate-700 mb-2">Start Tanggal</label>
-                            <input type="date" id="task-start-date" class="w-full px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                        <p class="text-xs text-slate-500">Durasi: <span id="task-duration" class="font-semibold text-slate-700">-</span></p>
+                    </section>
+
+                    <!-- Bagian: Lampiran -->
+                    <section class="space-y-3">
+                        <div class="flex items-center gap-4">
+                            <span class="text-sm font-medium text-slate-700">Lampiran</span>
+                            <label class="inline-flex items-center gap-2 text-sm text-slate-700">
+                                <input type="radio" name="attachment-type" value="url" class="accent-indigo-600" checked>
+                                URL Link
+                            </label>
+                            <label class="inline-flex items-center gap-2 text-sm text-slate-700">
+                                <input type="radio" name="attachment-type" value="desc" class="accent-indigo-600">
+                                Deskripsi
+                            </label>
                         </div>
-                        <div>
-                            <label for="task-deadline-date" class="block text-sm font-medium text-slate-700 mb-2">Deadline Tanggal</label>
-                            <input type="date" id="task-deadline-date" class="w-full px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                        <div id="attachment-url-wrap" class="space-y-1">
+                            <input type="url" id="task-link-url" class="w-full px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="https://contoh.com/dokumen" spellcheck="false">
+                            <p id="task-link-error" class="hidden text-xs text-red-600">URL tidak valid. Pastikan format seperti https://...</p>
                         </div>
-                    </div>
-                    
-                    <div>
-                        <label for="task-link" class="block text-sm font-medium text-slate-700 mb-2">Link Dokumen / Deskripsi</label>
-                        <textarea id="task-link" rows="3" class="w-full px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="https://... atau deskripsi singkat"></textarea>
-                    </div>
+                        <div id="attachment-desc-wrap" class="hidden">
+                            <textarea id="task-desc" rows="3" class="w-full px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Tulis deskripsi singkat..." spellcheck="true"></textarea>
+                        </div>
+                        <p class="text-xs text-slate-500">Catatan: Jika mengisi URL, gunakan format lengkap (https://). Jika memilih Deskripsi, isi ringkasan atau catatan terkait tugas.</p>
+                    </section>
                 </div>
                 
                 <!-- Footer Modal -->
@@ -1268,9 +1356,14 @@
         // Variabel Global
         let currentUser = null;
         let unsubscribeListeners = [];
-        let projectProgressChart = null;
+    let projectProgressChart = null;
+    let tasksPerUserChart = null; // [BARU] Chart batang per anggota
         let timelineCalendar = null;
         let allTasksCache = []; // [BARU] Cache untuk semua tugas dari Firestore
+        // Presence (online) tracking
+        const PRESENCE_HEARTBEAT_MS = 15000; // kirim heartbeat tiap 15 detik
+        const PRESENCE_ACTIVE_WINDOW_MS = 30000; // dianggap aktif jika last_seen <= 30 detik
+        let presenceHeartbeatTimer = null;
 
         // [BARU] Definisi warna dan bobot untuk prioritas
         const priorityDisplay = {
@@ -1339,7 +1432,14 @@
         const taskPrioritySelect = document.getElementById('task-priority'); // [BARU]
         const taskStartDateInput = document.getElementById('task-start-date');
         const taskDeadlineDateInput = document.getElementById('task-deadline-date');
-        const taskLinkInput = document.getElementById('task-link');
+    // Form lampiran (URL/Deskripsi)
+    const attachmentTypeRadios = () => Array.from(document.querySelectorAll('input[name="attachment-type"]'));
+    const taskLinkUrlInput = document.getElementById('task-link-url');
+    const taskDescInput = document.getElementById('task-desc');
+    const attachmentUrlWrap = document.getElementById('attachment-url-wrap');
+    const attachmentDescWrap = document.getElementById('attachment-desc-wrap');
+    const taskLinkError = document.getElementById('task-link-error');
+    const taskDurationEl = document.getElementById('task-duration');
         
         // ... Elemen DOM (Nav Mobile, Modal Konfirmasi) ... tidak berubah
         const menuBtn = document.getElementById('menu-btn');
@@ -1369,7 +1469,17 @@
                 taskPrioritySelect.value = task.priority || "Sedang"; // [DIUBAH]
                 taskStartDateInput.value = task.startDate;
                 taskDeadlineDateInput.value = task.deadlineDate;
-                taskLinkInput.value = task.documentLink;
+                // Prefill lampiran: jika mulai dengan http/https maka sebagai URL, selain itu deskripsi
+                const doc = task.documentLink || '';
+                if (/^https?:\/\//i.test(doc)) {
+                    setAttachmentMode('url');
+                    taskLinkUrlInput.value = doc;
+                    taskDescInput.value = '';
+                } else {
+                    setAttachmentMode('desc');
+                    taskDescInput.value = doc;
+                    taskLinkUrlInput.value = '';
+                }
             } else {
                 // Mode Tambah Baru
                 taskModalTitle.innerText = "Tambah Tugas Baru";
@@ -1377,8 +1487,10 @@
                 taskPicSelect.value = currentUser.name; 
                 taskProgressSelect.value = "Direncanakan";
                 taskPrioritySelect.value = "Sedang"; // [DIUBAH]
+                setAttachmentMode('url');
             }
             taskModal.classList.remove('hidden', 'opacity-0', 'scale-95');
+            updateDuration();
         }
         function hideTaskModal() {
             taskModal.classList.add('opacity-0', 'scale-95');
@@ -1431,6 +1543,32 @@
             }
             sidebar.classList.add('-translate-x-full');
             sidebarOverlay.classList.add('hidden');
+        }
+        
+        // --- Presence helpers ---
+        async function startPresenceHeartbeat() {
+            if (!currentUser) return;
+            const userStatusRef = doc(db, "users_status", currentUser.uid);
+            // Set awal agar langsung terlihat aktif
+            try {
+                await setDoc(userStatusRef, { name: currentUser.name, email: currentUser.email, online: true, last_seen: serverTimestamp() }, { merge: true });
+            } catch (e) { console.warn('Gagal set presence awal:', e); }
+            // Interval heartbeat
+            if (presenceHeartbeatTimer) clearInterval(presenceHeartbeatTimer);
+            presenceHeartbeatTimer = setInterval(async () => {
+                try {
+                    await setDoc(userStatusRef, { online: true, last_seen: serverTimestamp() }, { merge: true });
+                } catch (e) {
+                    // Abaikan error heartbeat sesekali
+                }
+            }, PRESENCE_HEARTBEAT_MS);
+        }
+
+        function stopPresenceHeartbeat() {
+            if (presenceHeartbeatTimer) {
+                clearInterval(presenceHeartbeatTimer);
+                presenceHeartbeatTimer = null;
+            }
         }
         
         // --- Fungsi Inisialisasi ---
@@ -1626,10 +1764,7 @@
             }
         });
         logoutButton.addEventListener('click', async () => {
-            if (currentUser) {
-                const userStatusRef = doc(db, "users_status", currentUser.uid);
-                await setDoc(userStatusRef, { online: false, last_seen: serverTimestamp() }, { merge: true });
-            }
+            // [DIUBAH] Jangan set offline saat logout; hanya signOut.
             await signOut(auth);
         });
         addTaskBtn.addEventListener('click', () => showTaskModal(null));
@@ -1648,6 +1783,81 @@
             sidebarOverlay.classList.add('hidden');
         });
 
+        // --- Helpers: Form To-Do ---
+        function setAttachmentMode(mode) {
+            if (mode === 'url') {
+                attachmentUrlWrap.classList.remove('hidden');
+                attachmentDescWrap.classList.add('hidden');
+            } else {
+                attachmentDescWrap.classList.remove('hidden');
+                attachmentUrlWrap.classList.add('hidden');
+            }
+            // set radio state
+            attachmentTypeRadios().forEach(r => r.checked = (r.value === mode));
+            validateLinkUrl();
+        }
+
+        function getAttachmentMode() {
+            const checked = attachmentTypeRadios().find(r => r.checked);
+            return checked ? checked.value : 'url';
+        }
+
+        function getDocumentLinkFromForm() {
+            const mode = getAttachmentMode();
+            if (mode === 'url') {
+                return (taskLinkUrlInput.value || '').trim();
+            } else {
+                return (taskDescInput.value || '').trim();
+            }
+        }
+
+        function validateLinkUrl() {
+            const mode = getAttachmentMode();
+            if (mode !== 'url') {
+                taskLinkError.classList.add('hidden');
+                return true;
+            }
+            const val = (taskLinkUrlInput.value || '').trim();
+            if (!val) { taskLinkError.classList.add('hidden'); return true; }
+            let ok = true;
+            try { new URL(val); } catch { ok = false; }
+            if (!ok) {
+                taskLinkError.classList.remove('hidden');
+            } else {
+                taskLinkError.classList.add('hidden');
+            }
+            return ok;
+        }
+
+        function updateDuration() {
+            const s = taskStartDateInput.value;
+            const d = taskDeadlineDateInput.value;
+            if (!s || !d) { taskDurationEl.innerText = '-'; return; }
+            const sd = new Date(s);
+            const dd = new Date(d);
+            const ms = dd.getTime() - sd.getTime();
+            if (isNaN(ms)) { taskDurationEl.innerText = '-'; return; }
+            const days = Math.floor(ms / (1000*60*60*24)) + 1; // inklusif
+            taskDurationEl.innerText = days + ' hari';
+        }
+
+        // --- Event bindings untuk Form To-Do (lampiran & durasi) ---
+        // Ganti mode lampiran URL/Deskripsi
+        attachmentTypeRadios().forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                setAttachmentMode(e.target.value);
+            });
+        });
+        // Validasi URL secara langsung ketika mengetik
+        if (taskLinkUrlInput) {
+            taskLinkUrlInput.addEventListener('input', () => {
+                validateLinkUrl();
+            });
+        }
+        // Hitung durasi ketika tanggal berubah
+        if (taskStartDateInput) taskStartDateInput.addEventListener('change', updateDuration);
+        if (taskDeadlineDateInput) taskDeadlineDateInput.addEventListener('change', updateDuration);
+
         // --- Fungsi Realtime Firebase (Listeners) ---
 
         // ... logUpdate, listenOnlineStatus, listenRecentUpdates, listenDashboardLinks ... tidak berubah
@@ -1665,10 +1875,14 @@
         function listenOnlineStatus() {
             const q = query(collection(db, "users_status"));
             const unsubscribe = onSnapshot(q, (snapshot) => {
+                const now = Date.now();
                 const onlineUsers = [];
-                snapshot.forEach(doc => {
-                    if (doc.data().online) {
-                        onlineUsers.push(doc.data().name);
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data() || {};
+                    const ts = data.last_seen?.seconds ? (data.last_seen.seconds * 1000) : (data.last_seen?._seconds ? (data.last_seen._seconds * 1000) : 0);
+                    const isActive = ts && (now - ts) <= PRESENCE_ACTIVE_WINDOW_MS; // aktif jika last_seen < 30 detik yang lalu
+                    if (isActive) {
+                        if (data.name) onlineUsers.push(data.name);
                     }
                 });
                 renderOnlineUsers(onlineUsers);
@@ -1704,7 +1918,7 @@
         }
         
         // [DIUBAH] Listener untuk semua tugas
-        function listenAllTasks() {
+    function listenAllTasks() {
             // [DIHAPUS] Sorting 'orderBy' dihapus dari query, 
             // kita akan sorting di sisi klien (browser)
             const q = query(collection(db, "todos")); 
@@ -1716,6 +1930,7 @@
                 
                 // Render chart dan kalender (yang tidak terpengaruh filter)
                 renderProjectProgressChart(allTasksCache);
+                renderDashboardStats(allTasksCache); // [BARU] statistik kompleks
                 renderTimelineCalendar(allTasksCache); 
                 
                 // [BARU] Terapkan filter dan render To-Do List
@@ -1780,21 +1995,76 @@
         function renderDashboardLinks(links) {
             dashboardLinksList.innerHTML = '';
             if (links.length === 0) {
-                dashboardLinksList.innerHTML = '<li class="px-2 py-4 text-center text-slate-500 text-sm">Belum ada link yang ditambahkan.</li>';
+                dashboardLinksList.innerHTML = '<li class="px-2 py-4 text-center text-slate-500 text-sm col-span-2">Belum ada link yang ditambahkan.</li>';
                 return;
             }
             links.forEach(link => {
                 dashboardLinksList.innerHTML += `
-                    <li class="flex items-center justify-between py-3 px-2 rounded-lg hover:bg-slate-50">
-                        <div>
-                            <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="text-sm font-semibold text-indigo-600 hover:underline">${link.name}</a>
-                            <p class="text-xs text-slate-500">${link.url}</p>
+                    <li class="flex items-center justify-between py-3 px-3 rounded-lg border border-slate-200 hover:bg-slate-50 transition">
+                        <div class="min-w-0">
+                            <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="block text-sm font-semibold text-indigo-600 hover:underline truncate">${link.name}</a>
+                            <p class="text-xs text-slate-500 truncate">${link.url}</p>
                         </div>
-                        <button data-id="${link.id}" class="delete-link-btn p-1 text-slate-400 hover:text-red-600 rounded-full">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                        </button>
+                        <div class="flex items-center gap-1 flex-shrink-0">
+                            <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="px-2 py-1 text-xs bg-indigo-100 text-indigo-700 rounded-md hover:bg-indigo-200">Buka</a>
+                            <button type="button" data-url="${link.url}" class="copy-link-btn px-2 py-1 text-xs bg-slate-100 text-slate-700 rounded-md hover:bg-slate-200">Salin</button>
+                            <button data-id="${link.id}" class="delete-link-btn p-1 text-slate-400 hover:text-red-600 rounded-full" title="Hapus">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </div>
                     </li>`;
             });
+        }
+
+        // [BARU] Statistik dashboard yang lebih lengkap
+        function renderDashboardStats(allTasks) {
+            const total = allTasks.length;
+            const ongoing = allTasks.filter(t => t.progress === 'On Going').length;
+            const done = allTasks.filter(t => t.progress === 'Done').length;
+            const todayTs = new Date().setHours(0,0,0,0);
+            const overdue = allTasks.filter(t => t.progress !== 'Done' && new Date(t.deadlineDate).setHours(0,0,0,0) < todayTs).length;
+
+            const elTotal = document.getElementById('stat-total');
+            const elOngoing = document.getElementById('stat-ongoing');
+            const elDone = document.getElementById('stat-done');
+            const elOverdue = document.getElementById('stat-overdue');
+            if (elTotal) elTotal.innerText = total;
+            if (elOngoing) elOngoing.innerText = ongoing;
+            if (elDone) elDone.innerText = done;
+            if (elOverdue) elOverdue.innerText = overdue;
+
+            // Chart: Tugas per Anggota
+            const perUserCounts = teamNames.map(name => allTasks.filter(t => t.picName === name).length);
+            const barCtx = document.getElementById('tasks-per-user-chart')?.getContext('2d');
+            if (barCtx) {
+                const data = {
+                    labels: teamNames,
+                    datasets: [{
+                        label: 'Tugas per Anggota',
+                        data: perUserCounts,
+                        backgroundColor: '#bfdbfe',
+                        borderColor: '#3b82f6',
+                        borderWidth: 1
+                    }]
+                };
+                if (tasksPerUserChart) {
+                    tasksPerUserChart.data = data;
+                    tasksPerUserChart.update();
+                } else {
+                    tasksPerUserChart = new Chart(barCtx, {
+                        type: 'bar',
+                        data,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: { beginAtZero: true, ticks: { precision: 0 } }
+                            },
+                            plugins: { legend: { display: false } }
+                        }
+                    });
+                }
+            }
         }
 
         // [BARU] Fungsi filter dan sorting utama
@@ -2024,6 +2294,11 @@
         taskForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const taskId = taskIdInput.value;
+            // Validasi URL bila mode lampiran URL dipilih
+            if (getAttachmentMode() === 'url' && !validateLinkUrl()) {
+                showConfirmationModal("Input Salah", "URL tidak valid. Gunakan format lengkap seperti https://contoh.com.", () => {});
+                return;
+            }
             
             const taskData = {
                 taskName: taskNameInput.value,
@@ -2032,7 +2307,7 @@
                 priority: taskPrioritySelect.value, // [BARU]
                 startDate: taskStartDateInput.value,
                 deadlineDate: taskDeadlineDateInput.value,
-                documentLink: taskLinkInput.value,
+                documentLink: getDocumentLinkFromForm(),
                 updatedAt: serverTimestamp()
             };
             
@@ -2079,6 +2354,19 @@
             }
         });
         document.body.addEventListener('click', async (e) => {
+            const copyBtn = e.target.closest('.copy-link-btn');
+            if (copyBtn) {
+                const url = copyBtn.getAttribute('data-url') || '';
+                try {
+                    await navigator.clipboard.writeText(url);
+                    const prevText = copyBtn.innerText;
+                    copyBtn.innerText = 'Tersalin';
+                    setTimeout(() => copyBtn.innerText = prevText, 1200);
+                } catch (err) {
+                    console.error('Gagal menyalin link:', err);
+                }
+                return;
+            }
             const deleteBtn = e.target.closest('.delete-task-btn');
             if (deleteBtn) {
                 const taskId = deleteBtn.dataset.id;
@@ -2161,6 +2449,8 @@
                     online: true,
                     last_seen: serverTimestamp()
                 }, { merge: true });
+                // Mulai heartbeat presence supaya hanya yang sedang membuka web tampil sebagai online
+                startPresenceHeartbeat();
 
                 userNameDisplay.innerText = currentUser.name;
                 userEmailDisplay.innerText = currentUser.email;
@@ -2181,6 +2471,7 @@
                 
             } else {
                 // User logout
+                stopPresenceHeartbeat();
                 currentUser = null;
                 detachRealtimeListeners();
                 
