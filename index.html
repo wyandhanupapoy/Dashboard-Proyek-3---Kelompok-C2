@@ -355,6 +355,114 @@
             letter-spacing: 0.05em;
         }
 
+        /* [BARU] Custom tooltip untuk FullCalendar */
+        .fc-event-tooltip {
+            position: absolute;
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            z-index: 9999;
+            min-width: 280px;
+            pointer-events: none;
+            border: 2px solid;
+            animation: tooltipFadeIn 0.2s ease-out;
+        }
+
+        @keyframes tooltipFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fc-event-tooltip-header {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid;
+        }
+
+        .fc-event-tooltip-body {
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .fc-event-tooltip-row {
+            display: flex;
+            align-items: center;
+            margin: 0.4rem 0;
+            gap: 0.5rem;
+        }
+
+        .fc-event-tooltip-icon {
+            font-size: 1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .fc-event-tooltip-badge {
+            display: inline-block;
+            padding: 0.25rem 0.65rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-left: 0.25rem;
+        }
+
+        /* [BARU] Style untuk event dengan progress indicator */
+        .fc .fc-event .event-progress-indicator {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: currentColor;
+            border-radius: 0 0 0.5rem 0.5rem;
+            opacity: 0.7;
+        }
+
+        .fc .fc-event .event-progress-text {
+            font-size: 0.65rem;
+            opacity: 0.9;
+            margin-left: 0.25rem;
+            font-weight: 600;
+        }
+
+        /* [BARU] Legend untuk Timeline */
+        .timeline-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .timeline-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .timeline-legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 0.375rem;
+            border: 2px solid;
+        }
+
+        .timeline-legend-label {
+            font-weight: 500;
+        }
+
         /* ===== LOADER ===== */
         #loader {
             background: linear-gradient(135deg, var(--slate-50) 0%, var(--slate-100) 100%);
@@ -829,22 +937,78 @@
                         </div>
                     </div>
                     
-                    <!-- ... Halaman Timeline ... tidak ada perubahan ... -->
+                    <!-- [DIPERBARUI] Halaman Timeline -->
                     <div id="timeline-page" class="app-page hidden">
-                        <!-- Filter Anggota (Tidak berubah) -->
-                        <div class="mb-6 flex flex-col md:flex-row items-center justify-between">
-                            <h2 class="text-2xl font-semibold text-slate-800 mb-4 md:mb-0">Timeline Kalender</h2>
-                            <div class="flex items-center space-x-2">
-                                <label for="timeline-user-filter" class="text-sm font-medium text-slate-600">Lihat timeline:</label>
-                                <select id="timeline-user-filter" class="bg-white border border-slate-300 rounded-lg shadow-sm px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                    <!-- Opsi akan diisi oleh JS -->
-                                </select>
+                        <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                            <h2 class="text-2xl font-bold text-slate-800 mb-4">Timeline Proyek</h2>
+                            
+                            <!-- Filter & Legend Container -->
+                            <div class="space-y-4 mb-6">
+                                <!-- Filter User -->
+                                <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                                    <label for="timeline-user-filter" class="text-sm font-medium text-slate-700 whitespace-nowrap">Filter PIC:</label>
+                                    <select id="timeline-user-filter" class="flex-1 sm:flex-initial px-4 py-2 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-150">
+                                        <!-- Options akan diisi oleh JavaScript -->
+                                    </select>
+                                </div>
+                                
+                                <!-- Legend PIC Colors -->
+                                <div class="timeline-legend">
+                                    <div class="w-full mb-2">
+                                        <span class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Legenda Warna PIC:</span>
+                                    </div>
+                                    <div class="timeline-legend-item">
+                                        <div class="timeline-legend-color" style="background-color: #10b981; border-color: #059669;"></div>
+                                        <span class="timeline-legend-label text-slate-700">Dhanu</span>
+                                    </div>
+                                    <div class="timeline-legend-item">
+                                        <div class="timeline-legend-color" style="background-color: #3b82f6; border-color: #2563eb;"></div>
+                                        <span class="timeline-legend-label text-slate-700">Hisyam</span>
+                                    </div>
+                                    <div class="timeline-legend-item">
+                                        <div class="timeline-legend-color" style="background-color: #f59e0b; border-color: #d97706;"></div>
+                                        <span class="timeline-legend-label text-slate-700">Dava</span>
+                                    </div>
+                                    <div class="timeline-legend-item">
+                                        <div class="timeline-legend-color" style="background-color: #ec4899; border-color: #db2777;"></div>
+                                        <span class="timeline-legend-label text-slate-700">Nezya</span>
+                                    </div>
+                                    <div class="timeline-legend-item">
+                                        <div class="timeline-legend-color" style="background-color: #8b5cf6; border-color: #7c3aed;"></div>
+                                        <span class="timeline-legend-label text-slate-700">Andin</span>
+                                    </div>
+                                    <div class="timeline-legend-item">
+                                        <div class="timeline-legend-color" style="background-color: #14b8a6; border-color: #0d9488;"></div>
+                                        <span class="timeline-legend-label text-slate-700">Bareng</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Legend Progress Status -->
+                                <div class="timeline-legend">
+                                    <div class="w-full mb-2">
+                                        <span class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Legenda Status Progress:</span>
+                                    </div>
+                                    <div class="timeline-legend-item">
+                                        <span class="timeline-legend-label">📋 Direncanakan</span>
+                                    </div>
+                                    <div class="timeline-legend-item">
+                                        <span class="timeline-legend-label">⚡ On Going</span>
+                                    </div>
+                                    <div class="timeline-legend-item">
+                                        <span class="timeline-legend-label">👀 On Review</span>
+                                    </div>
+                                    <div class="timeline-legend-item">
+                                        <span class="timeline-legend-label">✅ Done</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         
-                        <!-- Kontainer Kalender -->
-                        <div class="bg-white rounded-2xl shadow-lg p-4 md:p-6">
-                            <div id="timeline-calendar" class="min-h-[750px]"></div>
+                        <!-- Calendar Container -->
+                        <div class="bg-white rounded-2xl shadow-lg p-6">
+                            <div id="timeline-calendar"></div>
+                        </div>
+                    </div>
                         </div>
                     </div>
                     
@@ -1032,6 +1196,74 @@
         const teamNames = ["Dhanu", "Hisyam", "Dava", "Nezya", "Andin", "Bareng"];
         const taskStatuses = ["Direncanakan", "On Going", "On Review", "Done"];
         const taskPriorities = ["Tinggi", "Sedang", "Rendah"];
+
+        // [BARU] Warna unik untuk setiap user (6 warna berbeda yang kontras)
+        const userColors = {
+            "Dhanu": { 
+                primary: '#10b981', // Emerald
+                light: '#d1fae5',
+                dark: '#059669',
+                text: '#065f46'
+            },
+            "Hisyam": { 
+                primary: '#3b82f6', // Blue
+                light: '#dbeafe',
+                dark: '#2563eb',
+                text: '#1e40af'
+            },
+            "Dava": { 
+                primary: '#f59e0b', // Amber
+                light: '#fef3c7',
+                dark: '#d97706',
+                text: '#92400e'
+            },
+            "Nezya": { 
+                primary: '#ec4899', // Pink
+                light: '#fce7f3',
+                dark: '#db2777',
+                text: '#9f1239'
+            },
+            "Andin": { 
+                primary: '#8b5cf6', // Violet
+                light: '#ede9fe',
+                dark: '#7c3aed',
+                text: '#5b21b6'
+            },
+            "Bareng": { 
+                primary: '#14b8a6', // Teal
+                light: '#ccfbf1',
+                dark: '#0d9488',
+                text: '#115e59'
+            }
+        };
+
+        // [BARU] Warna dan icon untuk status progress
+        const progressConfig = {
+            "Direncanakan": {
+                icon: '📋',
+                color: '#64748b',
+                bgColor: '#f1f5f9',
+                textColor: '#334155'
+            },
+            "On Going": {
+                icon: '⚡',
+                color: '#3b82f6',
+                bgColor: '#dbeafe',
+                textColor: '#1e40af'
+            },
+            "On Review": {
+                icon: '👀',
+                color: '#f59e0b',
+                bgColor: '#fef3c7',
+                textColor: '#92400e'
+            },
+            "Done": {
+                icon: '✅',
+                color: '#10b981',
+                bgColor: '#d1fae5',
+                textColor: '#065f46'
+            }
+        };
 
         // Variabel Global
         let currentUser = null;
@@ -1227,7 +1459,7 @@
             taskStatuses.forEach(status => todoStatusFilter.add(new Option(status, status)));
         }
         
-        // ... initializeCalendar ... tidak berubah
+        // [DIPERBARUI] initializeCalendar dengan tooltip kompleks
         function initializeCalendar() {
             if (timelineCalendar) return; 
             timelineCalendar = new FullCalendar.Calendar(calendarEl, {
@@ -1240,6 +1472,22 @@
                 },
                 height: 'auto',
                 events: [],
+                eventDidMount: function(info) {
+                    // [BARU] Tambahkan tooltip yang kompleks
+                    const tooltip = createEventTooltip(info.event);
+                    info.el.addEventListener('mouseenter', function(e) {
+                        document.body.appendChild(tooltip);
+                        positionTooltip(tooltip, e);
+                    });
+                    info.el.addEventListener('mousemove', function(e) {
+                        positionTooltip(tooltip, e);
+                    });
+                    info.el.addEventListener('mouseleave', function() {
+                        if (tooltip.parentNode) {
+                            tooltip.parentNode.removeChild(tooltip);
+                        }
+                    });
+                },
                 eventClick: async (clickInfo) => {
                     const taskId = clickInfo.event.id;
                     try {
@@ -1257,6 +1505,97 @@
                 }
             });
             timelineCalendar.render();
+        }
+
+        // [BARU] Fungsi untuk membuat tooltip yang kompleks
+        function createEventTooltip(event) {
+            const tooltip = document.createElement('div');
+            tooltip.className = 'fc-event-tooltip';
+            
+            const extendedProps = event.extendedProps || {};
+            const picName = extendedProps.picName || 'N/A';
+            const progress = extendedProps.progress || 'N/A';
+            const priority = extendedProps.priority || 'Sedang';
+            const startDate = extendedProps.startDate || 'N/A';
+            const deadlineDate = event.end ? formatDate(new Date(event.end.getTime() - 86400000)) : 'N/A';
+            const link = extendedProps.link || '';
+            
+            const userColor = userColors[picName] || { primary: '#64748b', text: '#334155' };
+            const progressInfo = progressConfig[progress] || progressConfig['Direncanakan'];
+            const priorityInfo = priorityDisplay[priority] || priorityDisplay['default'];
+            
+            tooltip.style.borderColor = userColor.primary;
+            
+            tooltip.innerHTML = `
+                <div class="fc-event-tooltip-header" style="color: ${userColor.text}; border-color: ${userColor.primary};">
+                    ${event.title}
+                </div>
+                <div class="fc-event-tooltip-body">
+                    <div class="fc-event-tooltip-row">
+                        <span class="fc-event-tooltip-icon">👤</span>
+                        <span style="color: ${userColor.text}; font-weight: 600;">${picName}</span>
+                    </div>
+                    <div class="fc-event-tooltip-row">
+                        <span class="fc-event-tooltip-icon">${progressInfo.icon}</span>
+                        <span>Status:</span>
+                        <span class="fc-event-tooltip-badge" style="background-color: ${progressInfo.bgColor}; color: ${progressInfo.textColor};">
+                            ${progress}
+                        </span>
+                    </div>
+                    <div class="fc-event-tooltip-row">
+                        <span class="fc-event-tooltip-icon">🎯</span>
+                        <span>Prioritas:</span>
+                        <span class="fc-event-tooltip-badge ${priorityInfo.bg} ${priorityInfo.text}">
+                            ${priority}
+                        </span>
+                    </div>
+                    <div class="fc-event-tooltip-row">
+                        <span class="fc-event-tooltip-icon">📅</span>
+                        <span>Mulai: ${formatDate(new Date(startDate))}</span>
+                    </div>
+                    <div class="fc-event-tooltip-row">
+                        <span class="fc-event-tooltip-icon">⏰</span>
+                        <span>Deadline: ${deadlineDate}</span>
+                    </div>
+                    ${link ? `
+                    <div class="fc-event-tooltip-row">
+                        <span class="fc-event-tooltip-icon">🔗</span>
+                        <span style="color: #3b82f6; text-decoration: underline;">Ada Link</span>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            return tooltip;
+        }
+
+        // [BARU] Fungsi untuk posisi tooltip
+        function positionTooltip(tooltip, mouseEvent) {
+            const tooltipWidth = 280;
+            const tooltipHeight = tooltip.offsetHeight || 200;
+            const margin = 15;
+            
+            let left = mouseEvent.pageX + margin;
+            let top = mouseEvent.pageY + margin;
+            
+            // Cek apakah tooltip keluar dari viewport kanan
+            if (left + tooltipWidth > window.innerWidth + window.pageXOffset) {
+                left = mouseEvent.pageX - tooltipWidth - margin;
+            }
+            
+            // Cek apakah tooltip keluar dari viewport bawah
+            if (top + tooltipHeight > window.innerHeight + window.pageYOffset) {
+                top = mouseEvent.pageY - tooltipHeight - margin;
+            }
+            
+            tooltip.style.left = left + 'px';
+            tooltip.style.top = top + 'px';
+        }
+
+        // [BARU] Fungsi helper untuk format tanggal
+        function formatDate(date) {
+            const options = { day: 'numeric', month: 'short', year: 'numeric' };
+            return date.toLocaleDateString('id-ID', options);
         }
 
         // --- Penangan Event (Event Handlers) ---
@@ -1634,7 +1973,7 @@
             }
         }
         
-        // [DIUBAH] Render Kalender dengan data
+        // [DIPERBARUI] Render Kalender dengan warna per user dan progress indicator
         function renderTimelineCalendar(allTasks) {
             if (!timelineCalendar) return; 
             
@@ -1645,22 +1984,31 @@
                 : allTasks.filter(task => task.picName === selectedUser);
 
             const calendarEvents = filteredTasks.map(task => {
-                // [DIUBAH] Warna event berdasarkan prioritas
-                const prio = task.priority || "default";
-                const colors = priorityDisplay[prio] || priorityDisplay["default"];
+                // [BARU] Warna event berdasarkan USER, bukan prioritas
+                const picName = task.picName || 'Dhanu';
+                const userColor = userColors[picName] || userColors['Dhanu'];
+                const progressInfo = progressConfig[task.progress] || progressConfig['Direncanakan'];
                 
                 const endDate = new Date(task.deadlineDate);
                 endDate.setDate(endDate.getDate() + 1);
                 
+                // [BARU] Tambahkan icon progress di title
+                const progressIcon = progressInfo.icon;
+                
                 return {
                     id: task.id,
-                    title: `[${task.picName}] ${task.taskName}`, // Tambahkan PIC di judul
+                    title: `${progressIcon} ${task.taskName}`,
                     start: task.startDate,
                     end: endDate.toISOString().split('T')[0],
-                    backgroundColor: colors.bg.replace('bg-', '#'), // Ambil warna Hex
-                    borderColor: colors.border,
-                    textColor: colors.text.replace('text-', '#'),
+                    backgroundColor: userColor.primary,
+                    borderColor: userColor.dark,
+                    textColor: '#ffffff',
                     extendedProps: {
+                        picName: task.picName,
+                        progress: task.progress,
+                        priority: task.priority || 'Sedang',
+                        startDate: task.startDate,
+                        link: task.documentLink || '',
                         taskData: task
                     }
                 };
