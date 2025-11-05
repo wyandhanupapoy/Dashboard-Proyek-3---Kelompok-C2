@@ -13,6 +13,12 @@
     
     <!-- [BARU] Memuat FullCalendar.js -->
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.14/index.global.min.js'></script>
+    
+    <!-- [BARU] PDF tools: jsPDF, AutoTable, (optional) html2canvas -->
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+    <!-- html2canvas is not strictly required, kept for future visual captures
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script> -->
 
     <style>
         /* ===== IMPORT FONT ===== */
@@ -88,6 +94,12 @@
             line-height: 1.5;
             overflow-x: hidden;
         }
+        
+        /* Ensure viewport height stability across mobile browsers */
+        html, body { min-height: 100dvh; }
+
+        /* Media should never overflow containers */
+        img, canvas, svg, video { max-width: 100%; height: auto; }
 
         /* ===== SCROLLBAR STYLING ===== */
         .no-scrollbar {
@@ -380,6 +392,14 @@
             background: #ffffff; /* tutup area belakang */
             border-radius: var(--radius-xl);
         }
+        /* Responsive adjustments */
+        @media (max-width: 1024px) {
+            #timeline-calendar { max-height: 65vh; }
+        }
+        @media (max-width: 640px) {
+            #timeline-calendar { max-height: 60vh; }
+            .modal-content { max-height: 90dvh; overflow: auto; }
+        }
 
         /* Scrollbar kalender yang lebih halus */
         #timeline-calendar::-webkit-scrollbar { width: 10px; }
@@ -396,6 +416,25 @@
             box-shadow: 0 2px 0 rgba(15, 23, 42, 0.06);
             z-index: 10;
         }
+        /* Pastikan teks link panjang tidak mematahkan layout */
+        #dashboard-links-list a { word-break: break-all; }
+        /* Pastikan tabel tetap terbaca di layar kecil */
+        #todo-page { overflow-x: auto; }
+        @media (max-width: 640px) {
+            #todo-page table td, #todo-page table th { white-space: normal; word-break: break-word; }
+        }
+
+        /* Chart sizing that adapts by breakpoint */
+        #project-progress-chart, #tasks-per-user-chart {
+            width: 100% !important;
+            height: 280px !important;
+        }
+        @media (max-width: 640px) {
+            #project-progress-chart, #tasks-per-user-chart { height: 240px !important; }
+        }
+        @media (min-width: 1280px) {
+            #project-progress-chart, #tasks-per-user-chart { height: 320px !important; }
+        }
 
         /* [BARU] Custom tooltip untuk FullCalendar */
         .fc-event-tooltip {
@@ -406,6 +445,8 @@
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
             z-index: 9999;
             min-width: 280px;
+            max-width: min(320px, calc(100vw - 24px));
+            overflow-wrap: anywhere;
             pointer-events: none;
             border: 2px solid;
             animation: tooltipFadeIn 0.2s ease-out;
@@ -819,6 +860,12 @@
                                 <span>Timeline</span>
                             </a>
                         </li>
+                        <li>
+                            <a href="#" data-page="report-page" class="nav-link flex items-center space-x-3 px-4 py-3 text-slate-700 font-medium rounded-lg hover:bg-slate-100 transition duration-150">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6M9 16h6M8 6h8M5 4h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"></path></svg>
+                                <span>Laporan</span>
+                            </a>
+                        </li>
                     </ul>
                 </div>
                 
@@ -1082,6 +1129,8 @@
                 </div>
             </main>
         </div>
+
+        
     </div>
     
     <!-- [DIUBAH] Modal: Tambah/Edit Tugas -->
@@ -1198,6 +1247,58 @@
                 <button type="button" id="confirm-modal-cancel-btn" class="bg-white text-slate-700 px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-50 transition duration-150 text-sm font-medium">Batal</button>
                 <button type="button" id="confirm-modal-ok-btn" class="bg-red-600 text-white px-4 py-2 rounded-lg font-medium shadow-md hover:bg-red-700 transition duration-150 text-sm">Ya, Hapus</button>
             </div>
+        </div>
+    </div>
+
+    <!-- [BARU] Modal: Laporan Lengkap -->
+    <div id="report-modal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 opacity-0 transform scale-95">
+        <div class="modal-content bg-white w-full max-w-3xl rounded-2xl shadow-xl overflow-hidden transform scale-100">
+            <div class="flex items-center justify-between p-6 border-b border-slate-200">
+                <h3 class="text-xl font-semibold text-slate-800">Laporan Lengkap</h3>
+                <button id="close-report-modal-btn" class="text-slate-500 hover:text-slate-800">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <form id="report-form" class="p-6 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Judul Laporan</label>
+                        <input id="report-title" type="text" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Laporan Proyek C2" value="Laporan Proyek C2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-2">Rentang Tanggal</label>
+                        <div class="flex items-center gap-2">
+                            <input id="report-start-date" type="date" class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+                            <span class="text-slate-500">s/d</span>
+                            <input id="report-end-date" type="date" class="w-full px-3 py-2 border border-slate-300 rounded-lg">
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">Kosongkan untuk semua waktu</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="space-y-2">
+                        <div class="font-medium text-slate-700">Bagian</div>
+                        <label class="flex items-center gap-2 text-sm text-slate-700"><input id="include-kpi" type="checkbox" class="accent-indigo-600" checked> Ringkasan KPI</label>
+                        <label class="flex items-center gap-2 text-sm text-slate-700"><input id="include-charts" type="checkbox" class="accent-indigo-600" checked> Grafik</label>
+                        <label class="flex items-center gap-2 text-sm text-slate-700"><input id="include-todo" type="checkbox" class="accent-indigo-600" checked> Tabel Tugas (Semua User)</label>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="font-medium text-slate-700">Bagian Lanjutan</div>
+                        <label class="flex items-center gap-2 text-sm text-slate-700"><input id="include-upcoming" type="checkbox" class="accent-indigo-600" checked> Deadline Mendatang (7 hari)</label>
+                        <label class="flex items-center gap-2 text-sm text-slate-700"><input id="include-links" type="checkbox" class="accent-indigo-600" checked> Link Penting</label>
+                        <label class="flex items-center gap-2 text-sm text-slate-700"><input id="include-updates" type="checkbox" class="accent-indigo-600" checked> Update Terbaru</label>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="font-medium text-slate-700">Opsi</div>
+                        <label class="flex items-center gap-2 text-sm text-slate-700"><input id="group-by-user" type="checkbox" class="accent-indigo-600"> Kelompokkan Tugas per User</label>
+                        <label class="flex items-center gap-2 text-sm text-slate-700"><input id="only-not-done" type="checkbox" class="accent-indigo-600"> Hanya tugas belum selesai</label>
+                    </div>
+                </div>
+                <div class="flex items-center justify-end pt-2">
+                    <button type="button" id="cancel-report-btn" class="bg-white text-slate-700 px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-50 mr-2">Batal</button>
+                    <button type="submit" id="export-report-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg font-medium">Ekspor Laporan (PDF)</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -1360,6 +1461,8 @@
     let tasksPerUserChart = null; // [BARU] Chart batang per anggota
         let timelineCalendar = null;
         let allTasksCache = []; // [BARU] Cache untuk semua tugas dari Firestore
+        let linksCache = []; // [BARU] Cache link dashboard
+        let updatesCache = []; // [BARU] Cache update terbaru
         // Presence (online) tracking
         const PRESENCE_HEARTBEAT_MS = 15000; // kirim heartbeat tiap 15 detik
         const PRESENCE_ACTIVE_WINDOW_MS = 30000; // dianggap aktif jika last_seen <= 30 detik
@@ -1741,7 +1844,18 @@
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                navigateTo(link.dataset.page);
+                const targetPage = link.dataset.page;
+                // Jika menu Laporan diklik, buka modal laporan alih-alih berpindah halaman
+                if (targetPage === 'report-page') {
+                    if (typeof openReportModal === 'function') {
+                        openReportModal();
+                    }
+                    // Tutup sidebar pada perangkat kecil
+                    sidebar.classList.add('-translate-x-full');
+                    sidebarOverlay.classList.add('hidden');
+                    return;
+                }
+                navigateTo(targetPage);
             });
         });
         loginForm.addEventListener('submit', async (e) => {
@@ -1781,6 +1895,235 @@
         sidebarOverlay.addEventListener('click', () => {
             sidebar.classList.add('-translate-x-full');
             sidebarOverlay.classList.add('hidden');
+        });
+
+        // --- Laporan Lengkap: Modal & Ekspor ---
+        const openReportBtn = document.getElementById('open-report-btn');
+        const reportModal = document.getElementById('report-modal');
+        const closeReportModalBtn = document.getElementById('close-report-modal-btn');
+        const cancelReportBtn = document.getElementById('cancel-report-btn');
+        const reportForm = document.getElementById('report-form');
+        const reportTitleInput = document.getElementById('report-title');
+        const reportStartDateInput = document.getElementById('report-start-date');
+        const reportEndDateInput = document.getElementById('report-end-date');
+        const includeKpiInput = document.getElementById('include-kpi');
+        const includeChartsInput = document.getElementById('include-charts');
+        const includeTodoInput = document.getElementById('include-todo');
+        const includeUpcomingInput = document.getElementById('include-upcoming');
+        const includeLinksInput = document.getElementById('include-links');
+        const includeUpdatesInput = document.getElementById('include-updates');
+        const groupByUserInput = document.getElementById('group-by-user');
+        const onlyNotDoneInput = document.getElementById('only-not-done');
+
+        function openReportModal() {
+            reportModal.classList.remove('hidden', 'opacity-0', 'scale-95');
+        }
+        function closeReportModal() {
+            reportModal.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => reportModal.classList.add('hidden'), 250);
+        }
+        openReportBtn?.addEventListener('click', openReportModal);
+        closeReportModalBtn?.addEventListener('click', closeReportModal);
+        cancelReportBtn?.addEventListener('click', closeReportModal);
+
+        function getReportOptions() {
+            const start = reportStartDateInput.value ? new Date(reportStartDateInput.value) : null;
+            const end = reportEndDateInput.value ? new Date(reportEndDateInput.value) : null;
+            if (end) end.setHours(23,59,59,999);
+            return {
+                title: (reportTitleInput.value || 'Laporan Proyek C2').trim(),
+                startDate: start,
+                endDate: end,
+                includeKpi: includeKpiInput.checked,
+                includeCharts: includeChartsInput.checked,
+                includeTodo: includeTodoInput.checked,
+                includeUpcoming: includeUpcomingInput.checked,
+                includeLinks: includeLinksInput.checked,
+                includeUpdates: includeUpdatesInput.checked,
+                groupByUser: groupByUserInput.checked,
+                onlyNotDone: onlyNotDoneInput.checked
+            };
+        }
+
+        function filterTasksByOptions(tasks, options) {
+            let filtered = [...tasks];
+            if (options.onlyNotDone) filtered = filtered.filter(t => t.progress !== 'Done');
+            if (options.startDate || options.endDate) {
+                filtered = filtered.filter(t => {
+                    const s = t.startDate ? new Date(t.startDate) : null;
+                    const d = t.deadlineDate ? new Date(t.deadlineDate) : null;
+                    if (!s && !d) return false;
+                    const start = options.startDate || new Date('1970-01-01');
+                    const end = options.endDate || new Date('2999-12-31');
+                    // overlap check (s..d) intersects (start..end)
+                    const rangeStart = s || d;
+                    const rangeEnd = d || s;
+                    return rangeStart <= end && rangeEnd >= start;
+                });
+            }
+            return filtered;
+        }
+
+        function computeKpi(tasks) {
+            const total = tasks.length;
+            const ongoing = tasks.filter(t => t.progress === 'On Going').length;
+            const done = tasks.filter(t => t.progress === 'Done').length;
+            const todayTs = new Date().setHours(0,0,0,0);
+            const overdue = tasks.filter(t => t.progress !== 'Done' && new Date(t.deadlineDate).setHours(0,0,0,0) < todayTs).length;
+            // duration stats
+            const daysList = tasks.map(t => {
+                const s = new Date(t.startDate); const d = new Date(t.deadlineDate);
+                const ms = d - s; return isNaN(ms) ? null : Math.max(1, Math.floor(ms / 86400000) + 1);
+            }).filter(Boolean);
+            const avgDays = daysList.length ? (daysList.reduce((a,b)=>a+b,0)/daysList.length) : 0;
+            const maxDays = daysList.length ? Math.max(...daysList) : 0;
+            return { total, ongoing, done, overdue, avgDays: Math.round(avgDays*10)/10, maxDays };
+        }
+
+        async function exportFullReportPdf(options) {
+            const { jsPDF } = window.jspdf || {};
+            if (!jsPDF) {
+                showConfirmationModal('Error', 'Gagal memuat pustaka PDF. Coba muat ulang halaman.', () => {});
+                return;
+            }
+            const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+            const pageWidth = doc.internal.pageSize.getWidth();
+            const margin = 12;
+            let y = margin;
+
+            // Header
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(16);
+            doc.text(options.title || 'Laporan Proyek C2', margin, y);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(10);
+            y += 6;
+            doc.text('Dibuat: ' + new Date().toLocaleString('id-ID'), margin, y);
+            y += 6;
+
+            const tasks = filterTasksByOptions(allTasksCache, options);
+            const kpi = computeKpi(tasks);
+
+            // KPI Section
+            if (options.includeKpi) {
+                y += 2;
+                doc.setFont('helvetica', 'bold'); doc.setFontSize(12);
+                doc.text('Ringkasan KPI', margin, y);
+                y += 5; doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
+                doc.text(`Total Tugas: ${kpi.total}`, margin, y); y += 5;
+                doc.text(`On Going: ${kpi.ongoing}`, margin, y); y += 5;
+                doc.text(`Done: ${kpi.done}`, margin, y); y += 5;
+                doc.text(`Overdue: ${kpi.overdue}`, margin, y); y += 5;
+                doc.text(`Rata-rata Durasi: ${kpi.avgDays} hari (maks: ${kpi.maxDays} hari)`, margin, y); y += 8;
+            }
+
+            // Charts Section: embed existing charts if present
+            if (options.includeCharts) {
+                const progressCanvas = document.getElementById('project-progress-chart');
+                const perUserCanvas = document.getElementById('tasks-per-user-chart');
+                if (progressCanvas) {
+                    try {
+                        const img = progressCanvas.toDataURL('image/png', 1.0);
+                        const imgWidth = pageWidth - margin*2;
+                        const imgHeight = (imgWidth * 9) / 16; // approximate
+                        if (y + imgHeight > 287) { doc.addPage(); y = margin; }
+                        doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.text('Grafik Progress Tugas', margin, y); y += 5;
+                        doc.addImage(img, 'PNG', margin, y, imgWidth, imgHeight, undefined, 'FAST');
+                        y += imgHeight + 8;
+                    } catch {}
+                }
+                if (perUserCanvas) {
+                    try {
+                        const img2 = perUserCanvas.toDataURL('image/png', 1.0);
+                        const imgWidth2 = pageWidth - margin*2;
+                        const imgHeight2 = (imgWidth2 * 9) / 16;
+                        if (y + imgHeight2 > 287) { doc.addPage(); y = margin; }
+                        doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.text('Grafik Tugas per Anggota', margin, y); y += 5;
+                        doc.addImage(img2, 'PNG', margin, y, imgWidth2, imgHeight2, undefined, 'FAST');
+                        y += imgHeight2 + 8;
+                    } catch {}
+                }
+            }
+
+            // Tasks table
+            if (options.includeTodo) {
+                const rows = [];
+                const format = (d)=>{ try { return new Date(d).toLocaleDateString('id-ID'); } catch { return d||''; } };
+                const daysBetween = (s,d)=>{ const sd=new Date(s), dd=new Date(d); const ms=dd-sd; return isNaN(ms)?'':(Math.max(1, Math.floor(ms/86400000)+1)+ 'h'); };
+                const tasksSorted = options.groupByUser ?
+                    [...tasks].sort((a,b)=> (a.picName||'').localeCompare(b.picName||'') || (a.deadlineDate||'').localeCompare(b.deadlineDate||''))
+                    : [...tasks].sort((a,b)=> (a.deadlineDate||'').localeCompare(b.deadlineDate||''));
+                tasksSorted.forEach(t => rows.push([
+                    t.taskName || '-',
+                    t.picName || '-',
+                    t.progress || '-',
+                    t.priority || '-',
+                    format(t.startDate),
+                    format(t.deadlineDate),
+                    daysBetween(t.startDate, t.deadlineDate),
+                    (t.documentLink ? 'Ya' : '-')
+                ]));
+                const head = [['Tugas','PIC','Status','Prioritas','Start','Deadline','Durasi','Lampiran']];
+                const autoTableOptions = { head: [head[0]], body: rows, startY: y, styles: { fontSize: 8 }, headStyles: { fillColor: [79,70,229] } };
+                // @ts-ignore
+                doc.autoTable(autoTableOptions);
+                y = doc.lastAutoTable ? doc.lastAutoTable.finalY + 6 : y + 6;
+            }
+
+            // Upcoming deadlines (7 days)
+            if (options.includeUpcoming) {
+                const now = new Date(); const soon = new Date(now.getTime()+7*86400000);
+                const up = tasks.filter(t => t.progress !== 'Done' && t.deadlineDate && new Date(t.deadlineDate) >= now && new Date(t.deadlineDate) <= soon)
+                                 .sort((a,b)=> (a.deadlineDate||'').localeCompare(b.deadlineDate||''));
+                if (up.length) {
+                    if (y + 20 > 287) { doc.addPage(); y = margin; }
+                    doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.text('Deadline Mendatang (7 hari)', margin, y); y += 6;
+                    const rows = up.map(t => [t.deadlineDate ? new Date(t.deadlineDate).toLocaleDateString('id-ID') : '-', t.taskName || '-', t.picName || '-', t.priority || '-']);
+                    // @ts-ignore
+                    doc.autoTable({ head: [['Tanggal','Tugas','PIC','Prioritas']], body: rows, startY: y, styles: { fontSize: 8 }, headStyles: { fillColor: [79,70,229] } });
+                    y = doc.lastAutoTable ? doc.lastAutoTable.finalY + 6 : y + 6;
+                }
+            }
+
+            // Links
+            if (options.includeLinks && linksCache.length) {
+                if (y + 20 > 287) { doc.addPage(); y = margin; }
+                doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.text('Link Penting', margin, y); y += 6;
+                const rows = linksCache.map(l => [l.name || '-', l.url || '-']);
+                // @ts-ignore
+                doc.autoTable({ head: [['Nama','URL']], body: rows, startY: y, styles: { fontSize: 8 }, headStyles: { fillColor: [79,70,229] }, columnStyles: { 1: { cellWidth: pageWidth - margin*2 - 40 } } });
+                y = doc.lastAutoTable ? doc.lastAutoTable.finalY + 6 : y + 6;
+            }
+
+            // Recent updates
+            if (options.includeUpdates && updatesCache.length) {
+                if (y + 20 > 287) { doc.addPage(); y = margin; }
+                doc.setFont('helvetica','bold'); doc.setFontSize(12); doc.text('Update Terbaru', margin, y); y += 6;
+                const rows = updatesCache.map(u => [
+                    u.timestamp && u.timestamp.seconds ? new Date(u.timestamp.seconds*1000).toLocaleString('id-ID') : '-',
+                    u.userName || '-',
+                    u.message || '-'
+                ]);
+                // @ts-ignore
+                doc.autoTable({ head: [['Waktu','User','Aktivitas']], body: rows, startY: y, styles: { fontSize: 8 }, headStyles: { fillColor: [79,70,229] } });
+                y = doc.lastAutoTable ? doc.lastAutoTable.finalY + 6 : y + 6;
+            }
+
+            // Footer page numbers
+            const pageCount = doc.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(9); doc.setTextColor(120);
+                doc.text(`Halaman ${i} / ${pageCount}`, pageWidth - margin - 30, 295, { align: 'right' });
+            }
+
+            doc.save((options.title || 'Laporan Proyek C2') + '.pdf');
+        }
+
+        reportForm?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const options = getReportOptions();
+            exportFullReportPdf(options).then(() => closeReportModal());
         });
 
         // --- Helpers: Form To-Do ---
@@ -1860,6 +2203,22 @@
 
         // --- Fungsi Realtime Firebase (Listeners) ---
 
+        // Debounce helper untuk event resize
+        function debounce(fn, wait = 150) {
+            let t;
+            return function(...args) {
+                clearTimeout(t);
+                t = setTimeout(() => fn.apply(this, args), wait);
+            };
+        }
+
+        // Resize-aware: pastikan kalender dan chart menyesuaikan ukuran container
+        window.addEventListener('resize', debounce(() => {
+            try { if (timelineCalendar) timelineCalendar.updateSize(); } catch {}
+            try { if (projectProgressChart) projectProgressChart.resize(); } catch {}
+            try { if (tasksPerUserChart) tasksPerUserChart.resize(); } catch {}
+        }, 180));
+
         // ... logUpdate, listenOnlineStatus, listenRecentUpdates, listenDashboardLinks ... tidak berubah
         async function logUpdate(message) {
             try {
@@ -1899,8 +2258,9 @@
             const unsubscribe = onSnapshot(q, (snapshot) => {
                 const updates = [];
                 snapshot.forEach(doc => {
-                    updates.push(doc.data());
+                    updates.push({ id: doc.id, ...doc.data() });
                 });
+                updatesCache = updates; // simpan untuk laporan
                 renderRecentUpdates(updates);
             }, (error) => console.error("Error listenRecentUpdates: ", error));
             unsubscribeListeners.push(unsubscribe);
@@ -1912,6 +2272,7 @@
                 snapshot.forEach(doc => {
                     links.push({ id: doc.id, ...doc.data() });
                 });
+                linksCache = links; // simpan untuk laporan
                 renderDashboardLinks(links);
             }, (error) => console.error("Error listenDashboardLinks: ", error));
             unsubscribeListeners.push(unsubscribe);
